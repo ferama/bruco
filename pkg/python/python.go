@@ -17,12 +17,12 @@ type Python struct {
 	killingMutex sync.Mutex
 	ch           *channel.Channel
 
-	name string
-	wq   chan *Python
+	name      string
+	available chan *Python
 }
 
 // NewPython creates a python instance
-func NewPython(name string, wq chan *Python) *Python {
+func NewPython(name string, availableWorkers chan *Python) *Python {
 
 	ch, _ := channel.NewChannel()
 
@@ -38,15 +38,15 @@ func NewPython(name string, wq chan *Python) *Python {
 	}
 
 	python := &Python{
-		cmd:  cmd,
-		ch:   ch,
-		name: name,
-		wq:   wq,
+		cmd:       cmd,
+		ch:        ch,
+		name:      name,
+		available: availableWorkers,
 	}
 
 	go python.handleOutput()
 
-	wq <- python
+	availableWorkers <- python
 
 	return python
 }
@@ -55,14 +55,12 @@ func (p *Python) handleOutput() {
 	for {
 		out, _ := p.ch.Read()
 		if out != nil {
-			p.wq <- p
+			p.available <- p
 		}
 
-		// log.Print(string(out))
 		msg := &Message{}
 		err := json.Unmarshal(out, msg)
 		if err != nil {
-			// log.Println(err)
 			return
 		}
 		log.Println(fmt.Sprintf("(%s): %s", p.name, msg.Response))
@@ -70,12 +68,12 @@ func (p *Python) handleOutput() {
 }
 
 // HandleEvent writes to python process stdin
-func (p *Python) HandleEvent(data []byte) error {
+func (p *Python) handleEvent(data []byte) error {
 	return p.ch.Write(data)
 }
 
 // Kill kills the python sub process
-func (p *Python) Kill() {
+func (p *Python) kill() {
 	// this lock is never released
 	p.killingMutex.Lock()
 

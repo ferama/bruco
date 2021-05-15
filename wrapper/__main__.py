@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import importlib
@@ -10,7 +11,7 @@ class Context: pass
 class Wrapper:
     def __init__(self, working_directory, port: int):
         self.port = port
-        self.working_directory = working_directory
+        os.chdir(working_directory)
         signal.signal(signal.SIGINT, self.sigint_handler)
 
     def sigint_handler(self, p1, p2):

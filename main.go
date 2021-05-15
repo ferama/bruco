@@ -11,14 +11,12 @@ import (
 )
 
 func main() {
-	pool := python.NewPool(5)
+	pool := python.NewPool(4)
 	go func() {
 		i := 0
 		for {
-			python := pool.GetWorker()
 			i++
-			// ch.Write([]byte("the event"))
-			python.HandleEvent([]byte("the event " + fmt.Sprint(i)))
+			pool.HandleEvent([]byte("the event " + fmt.Sprint(i)))
 			time.Sleep(time.Second)
 		}
 	}()

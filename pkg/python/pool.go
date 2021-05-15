@@ -2,7 +2,6 @@ package python
 
 import (
 	"fmt"
-	"log"
 )
 
 // Pool ...
@@ -10,14 +9,14 @@ type Pool struct {
 	// filename(sessionName) -> python instance
 	pythonMap map[string]*Python
 
-	workerQueue chan *Python
+	availableWorkers chan *Python
 }
 
 // GetPoolInstance ...
 func NewPool(size int) *Pool {
 	pool := &Pool{
-		pythonMap:   make(map[string]*Python),
-		workerQueue: make(chan *Python, size),
+		pythonMap:        make(map[string]*Python),
+		availableWorkers: make(chan *Python, size),
 	}
 
 	for i := 0; i < size; i++ {
@@ -28,23 +27,24 @@ func NewPool(size int) *Pool {
 	return pool
 }
 
-func (p *Pool) GetWorker() *Python {
-	return <-p.workerQueue
+func (p *Pool) HandleEvent(data []byte) error {
+	python := <-p.availableWorkers
+	return python.handleEvent(data)
 }
 
 // createPythonInstance ...
 func (p *Pool) createPythonInstance(name string) *Python {
-	python := NewPython(name, p.workerQueue)
+	python := NewPython(name, p.availableWorkers)
 	p.pythonMap[name] = python
 
-	log.Println("New python instance started: " + name)
+	// log.Println("New python instance started: " + name)
 	return python
 }
 
 // Destroy ...
 func (p *Pool) Destroy() {
 	for key, python := range p.pythonMap {
-		python.Kill()
+		python.kill()
 		python = nil
 		delete(p.pythonMap, key)
 	}

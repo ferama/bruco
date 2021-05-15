@@ -5,7 +5,7 @@ def handle_event(context, data):
     # context.logger(params)
     # print("python stdout test")
     # context.ciao()
-    time.sleep(1.5)
+    time.sleep(4)
     return data.decode() +  " test"
 
 def init_context(context):
