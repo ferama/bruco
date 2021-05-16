@@ -2,21 +2,41 @@ package python
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 // Pool ...
 type Pool struct {
 	// filename(sessionName) -> python instance
-	pythonMap map[string]*Python
+	pythonMap   map[string]*Python
+	wrapperPath string
+	lambdaPath  string
 
 	availableWorkers chan *Python
 }
 
 // GetPoolInstance ...
-func NewPool(size int) *Pool {
+func NewPool(size int, lambdaPath string) *Pool {
+	data, _ := pythonWrapper.ReadFile("wrapper/wrapper.py")
+	file, err := ioutil.TempFile(os.TempDir(), "python-wrapper-")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err = file.Write(data); err != nil {
+		log.Fatal("Failed to write to temporary file", err)
+	}
+	if err := file.Close(); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("unpacked wrapper to %s", file.Name())
+
 	pool := &Pool{
 		pythonMap:        make(map[string]*Python),
 		availableWorkers: make(chan *Python, size),
+		wrapperPath:      file.Name(),
+		lambdaPath:       lambdaPath,
 	}
 
 	for i := 0; i < size; i++ {
@@ -34,7 +54,7 @@ func (p *Pool) HandleEvent(data []byte) error {
 
 // createPythonInstance ...
 func (p *Pool) createPythonInstance(name string) *Python {
-	python := NewPython(name, p.availableWorkers)
+	python := NewPython(name, p.availableWorkers, p.wrapperPath, p.lambdaPath)
 	p.pythonMap[name] = python
 
 	// log.Println("New python instance started: " + name)
@@ -48,4 +68,5 @@ func (p *Pool) Destroy() {
 		python = nil
 		delete(p.pythonMap, key)
 	}
+	os.Remove(p.wrapperPath)
 }

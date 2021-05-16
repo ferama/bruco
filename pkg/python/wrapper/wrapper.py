@@ -9,9 +9,10 @@ class Context: pass
 
 
 class Wrapper:
-    def __init__(self, working_directory, port: int):
+    def __init__(self, lambda_path, port: int):
         self.port = port
-        os.chdir(working_directory)
+        os.chdir(lambda_path)
+        sys.path.append(".")
         signal.signal(signal.SIGINT, self.sigint_handler)
 
     def sigint_handler(self, p1, p2):
@@ -51,6 +52,23 @@ class Wrapper:
 
 
 if __name__ == "__main__":
-    import sys
-    w = Wrapper(".", int(sys.argv[1]))
+    import argparse
+    parser = argparse.ArgumentParser(description="the python shell")
+    parser.add_argument("--lambda-path", 
+                            required=True,
+                            metavar="lambda_path", 
+                            type=str, 
+                            help="the working directory")
+    parser.add_argument("--port", 
+                            required=True,
+                            metavar="port", 
+                            type=int, 
+                            help="the processor port")
+    parser.add_argument("--worker-name", 
+                            required=True,
+                            metavar="worker_name", 
+                            type=str, 
+                            help="the worker name")
+    args = parser.parse_args()
+    w = Wrapper(args.lambda_path, args.port)
     w.start()

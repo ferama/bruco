@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	pool := python.NewPool(4)
+	pool := python.NewPool(4, "./lambda")
 	go func() {
 		i := 0
 		for {

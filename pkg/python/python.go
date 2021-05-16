@@ -22,13 +22,20 @@ type Python struct {
 }
 
 // NewPython creates a python instance
-func NewPython(name string, availableWorkers chan *Python) *Python {
-
+func NewPython(name string, availableWorkers chan *Python,
+	wrapperPath string, lambdaPath string) *Python {
 	ch, _ := channel.NewChannel()
 
 	pythonPath := "python3"
-	wrapperPath := "./wrapper"
-	cmd := exec.Command(pythonPath, wrapperPath, fmt.Sprintf("%d", ch.Port))
+
+	args := []string{
+		pythonPath, "-u", wrapperPath,
+		"--lambda-path", lambdaPath,
+		"--port", fmt.Sprintf("%d", ch.Port),
+		"--worker-name", name,
+	}
+
+	cmd := exec.Command(args[0], args[1:]...)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
