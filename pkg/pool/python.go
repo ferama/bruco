@@ -15,7 +15,7 @@ type Python struct {
 
 	name          string
 	available     chan *Python
-	eventResponse chan message
+	eventResponse chan Response
 }
 
 // NewPython creates a python instance
@@ -46,7 +46,7 @@ func NewPython(name string, availableWorkers chan *Python,
 		ch:            ch,
 		name:          name,
 		available:     availableWorkers,
-		eventResponse: make(chan message),
+		eventResponse: make(chan Response),
 	}
 
 	go python.handleOutput()
@@ -66,13 +66,12 @@ func (p *Python) handleOutput() {
 			return
 		}
 
-		msg := &message{}
-		err := json.Unmarshal(out, msg)
+		res := &Response{}
+		err := json.Unmarshal(out, res)
 		if err != nil {
 			return
 		}
-		// p.eventResponse <- *msg
-		log.Println(fmt.Sprintf("(%s): %s", p.name, msg.Response))
+		p.eventResponse <- *res
 	}
 }
 

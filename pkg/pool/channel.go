@@ -22,7 +22,7 @@ func newChannel() (*channel, error) {
 		return nil, err
 	}
 	port := listener.Addr().(*net.TCPAddr).Port
-	log.Printf("listening on port %d", port)
+	// log.Printf("listening on port %d", port)
 
 	c := &channel{
 		listener: listener,

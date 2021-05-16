@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-
-	"github.com/pkg/errors"
 )
+
+type EvenCallback func(msg *Response)
 
 // Pool ...
 type Pool struct {
@@ -49,22 +49,16 @@ func NewPool(size int, lambdaPath string) *Pool {
 	return pool
 }
 
-func (p *Pool) HandleEventAsync(data []byte) error {
-	python := <-p.availableWorkers
-	return python.handleEvent(data)
-}
-
-func (p *Pool) HandleEvent(data []byte) (string, error) {
+func (p *Pool) HandleEvent(data []byte, callback EvenCallback) error {
 	python := <-p.availableWorkers
 	err := python.handleEvent(data)
-	response := <-python.eventResponse
-	if err != nil {
-		return "", err
-	}
-	if response.Error != "" {
-		return "", errors.New(response.Error)
-	}
-	return response.Response, nil
+	go func() {
+		response := <-python.eventResponse
+		if callback != nil {
+			callback(&response)
+		}
+	}()
+	return err
 }
 
 // createPythonInstance ...

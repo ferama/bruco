@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,14 +12,15 @@ import (
 )
 
 func main() {
-	pool := pool.NewPool(4, "./lambda")
+	workers := pool.NewPool(4, "./lambda")
 	go func() {
 		i := 0
 		for {
 			i++
-			pool.HandleEventAsync([]byte("the event " + fmt.Sprint(i)))
-			// res, _ := pool.HandleEvent([]byte("the event " + fmt.Sprint(i)))
-			// log.Println(res)
+			callback := func(msg *pool.Response) {
+				log.Println(msg.Data)
+			}
+			workers.HandleEvent([]byte("the event "+fmt.Sprint(i)), callback)
 			time.Sleep(time.Second)
 		}
 	}()
@@ -26,5 +28,5 @@ func main() {
 	c := make(chan os.Signal, 10)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	<-c
-	pool.Destroy()
+	workers.Destroy()
 }

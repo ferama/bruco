@@ -33,7 +33,7 @@ class Wrapper:
                 response = module.handle_event(context, msg)
                 if not response: response = ""
                 out = {
-                    "response": response,
+                    "data": response,
                     "error": ""
                 }
                 out = json.dumps(out)
@@ -41,7 +41,7 @@ class Wrapper:
                 client.send(out.encode())
             except Exception as e:
                 out = {
-                    "response": "",
+                    "data": "",
                     "error": e
                 }
                 out = json.dumps(out)
