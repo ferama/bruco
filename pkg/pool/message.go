@@ -1,4 +1,4 @@
-package python
+package pool
 
 // Message ...
 type Message struct {

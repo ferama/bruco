@@ -1,4 +1,4 @@
-package channel
+package pool
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type Channel struct {
+type channel struct {
 	reader    *bufio.Reader
 	writer    *bufio.Writer
 	Port      int
@@ -15,7 +15,7 @@ type Channel struct {
 	connected sync.WaitGroup
 }
 
-func NewChannel() (*Channel, error) {
+func newChannel() (*channel, error) {
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
 		log.Fatal("dial error ", err)
@@ -24,7 +24,7 @@ func NewChannel() (*Channel, error) {
 	port := listener.Addr().(*net.TCPAddr).Port
 	log.Printf("listening on port %d", port)
 
-	c := &Channel{
+	c := &channel{
 		listener: listener,
 		Port:     port,
 	}
@@ -34,7 +34,7 @@ func NewChannel() (*Channel, error) {
 	return c, nil
 }
 
-func (c *Channel) listen(onStart bool) {
+func (c *channel) listen(onStart bool) {
 	if !onStart {
 		c.connected.Add(1)
 	}
@@ -49,7 +49,7 @@ func (c *Channel) listen(onStart bool) {
 	c.connected.Done()
 }
 
-func (c *Channel) Write(data []byte) error {
+func (c *channel) Write(data []byte) error {
 	c.connected.Wait()
 	_, err := c.writer.Write(data)
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *Channel) Write(data []byte) error {
 	return nil
 }
 
-func (c *Channel) Read() ([]byte, error) {
+func (c *channel) Read() ([]byte, error) {
 	c.connected.Wait()
 	out, err := c.reader.ReadBytes('\n')
 	if err != nil {
@@ -72,7 +72,7 @@ func (c *Channel) Read() ([]byte, error) {
 	return out, err
 }
 
-func (c *Channel) Close() {
+func (c *channel) Close() {
 	// log.Println("ch closed")
 	c.listener.Close()
 }

@@ -7,11 +7,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ferama/coreai/pkg/python"
+	"github.com/ferama/coreai/pkg/pool"
 )
 
 func main() {
-	pool := python.NewPool(4, "./lambda")
+	pool := pool.NewPool(4, "./lambda")
 	go func() {
 		i := 0
 		for {

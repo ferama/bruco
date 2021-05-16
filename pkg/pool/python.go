@@ -1,4 +1,4 @@
-package python
+package pool
 
 import (
 	"encoding/json"
@@ -6,16 +6,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"sync"
-
-	"github.com/ferama/coreai/pkg/channel"
 )
 
 // Python class
 type Python struct {
-	cmd          *exec.Cmd
-	killingMutex sync.Mutex
-	ch           *channel.Channel
+	cmd *exec.Cmd
+	ch  *channel
 
 	name      string
 	available chan *Python
@@ -24,7 +20,7 @@ type Python struct {
 // NewPython creates a python instance
 func NewPython(name string, availableWorkers chan *Python,
 	wrapperPath string, lambdaPath string) *Python {
-	ch, _ := channel.NewChannel()
+	ch, _ := newChannel()
 
 	pythonPath := "python3"
 
@@ -81,11 +77,6 @@ func (p *Python) handleEvent(data []byte) error {
 
 // Kill kills the python sub process
 func (p *Python) kill() {
-	// this lock is never released
-	p.killingMutex.Lock()
-
-	// log.Println("killing python subprocess")
-	// Kill it:
 	if err := p.cmd.Process.Kill(); err != nil {
 		log.Fatalln(err)
 	}
