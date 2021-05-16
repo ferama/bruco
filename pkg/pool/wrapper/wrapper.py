@@ -24,7 +24,6 @@ class Wrapper:
         module.init_context(context)
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # print(f"Connecting to {socket.gethostname()}:{self.port}")
         client.connect((socket.gethostname(), self.port))
 
         while True:
@@ -48,8 +47,6 @@ class Wrapper:
                 out += "\n"
                 client.send(out.encode())
         
-
-
 
 if __name__ == "__main__":
     import argparse

@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	workers := pool.NewPool(4, "./lambda")
+	workers := pool.NewPool(8, "./lambda")
 	go func() {
 		i := 0
 		for {
@@ -21,7 +21,10 @@ func main() {
 				log.Println(msg.Data)
 			}
 			workers.HandleEvent([]byte("the event "+fmt.Sprint(i)), callback)
-			time.Sleep(time.Second)
+			if i%8 == 0 {
+				time.Sleep(8 * time.Second)
+			}
+			// time.Sleep(time.Second / 2)
 		}
 	}()
 
