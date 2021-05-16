@@ -16,7 +16,9 @@ func main() {
 		i := 0
 		for {
 			i++
-			pool.HandleEvent([]byte("the event " + fmt.Sprint(i)))
+			pool.HandleEventAsync([]byte("the event " + fmt.Sprint(i)))
+			// res, _ := pool.HandleEvent([]byte("the event " + fmt.Sprint(i)))
+			// log.Println(res)
 			time.Sleep(time.Second)
 		}
 	}()

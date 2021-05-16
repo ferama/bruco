@@ -13,8 +13,9 @@ type Python struct {
 	cmd *exec.Cmd
 	ch  *channel
 
-	name      string
-	available chan *Python
+	name          string
+	available     chan *Python
+	eventResponse chan message
 }
 
 // NewPython creates a python instance
@@ -41,10 +42,11 @@ func NewPython(name string, availableWorkers chan *Python,
 	}
 
 	python := &Python{
-		cmd:       cmd,
-		ch:        ch,
-		name:      name,
-		available: availableWorkers,
+		cmd:           cmd,
+		ch:            ch,
+		name:          name,
+		available:     availableWorkers,
+		eventResponse: make(chan message),
 	}
 
 	go python.handleOutput()
@@ -56,16 +58,20 @@ func NewPython(name string, availableWorkers chan *Python,
 
 func (p *Python) handleOutput() {
 	for {
-		out, _ := p.ch.Read()
+		out, rerr := p.ch.Read()
 		if out != nil {
 			p.available <- p
 		}
+		if rerr != nil {
+			return
+		}
 
-		msg := &Message{}
+		msg := &message{}
 		err := json.Unmarshal(out, msg)
 		if err != nil {
 			return
 		}
+		// p.eventResponse <- *msg
 		log.Println(fmt.Sprintf("(%s): %s", p.name, msg.Response))
 	}
 }

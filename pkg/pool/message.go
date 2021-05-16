@@ -1,7 +1,7 @@
 package pool
 
-// Message ...
-type Message struct {
+// message ...
+type message struct {
 	Response string `json:"response"`
 	Error    string `json:"error"`
 }

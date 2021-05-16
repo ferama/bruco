@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 // Pool ...
@@ -47,9 +49,22 @@ func NewPool(size int, lambdaPath string) *Pool {
 	return pool
 }
 
-func (p *Pool) HandleEvent(data []byte) error {
+func (p *Pool) HandleEventAsync(data []byte) error {
 	python := <-p.availableWorkers
 	return python.handleEvent(data)
+}
+
+func (p *Pool) HandleEvent(data []byte) (string, error) {
+	python := <-p.availableWorkers
+	err := python.handleEvent(data)
+	response := <-python.eventResponse
+	if err != nil {
+		return "", err
+	}
+	if response.Error != "" {
+		return "", errors.New(response.Error)
+	}
+	return response.Response, nil
 }
 
 // createPythonInstance ...
