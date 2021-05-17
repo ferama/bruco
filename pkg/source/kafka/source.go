@@ -8,17 +8,16 @@ import (
 	"github.com/Shopify/sarama"
 )
 
-type KafkaSource struct {
-	Stream chan sarama.ConsumerMessage
+type MessageHandler func(msg *sarama.ConsumerMessage)
 
+type KafkaSource struct {
 	consumerGroupSession sarama.ConsumerGroupSession
-	autoMarkMessage      bool
+	messageHandler       MessageHandler
 }
 
 func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
 	kafkaSource := &KafkaSource{
-		Stream:          make(chan sarama.ConsumerMessage),
-		autoMarkMessage: kconf.AutoMarkMessage,
+		messageHandler: nil,
 	}
 
 	config := sarama.NewConfig()
@@ -50,6 +49,10 @@ func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
 	return kafkaSource
 }
 
+func (k *KafkaSource) SetMessageHandler(handler MessageHandler) {
+	k.messageHandler = handler
+}
+
 func (k *KafkaSource) resolveBalanceStrategy(strategy string) (sarama.BalanceStrategy, error) {
 	if strategy == "" {
 		return sarama.BalanceStrategyRange, nil
@@ -79,17 +82,30 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+	log.Printf("Consume claim called for %d", claim.Partition())
+
+	claimedMessage := make(chan sarama.ConsumerMessage)
+	go func() {
+		for {
+			msg := <-claimedMessage
+			// log.Printf("value = %s, partition = %d", string(msg.Value), claim.Partition())
+			if k.messageHandler != nil {
+				k.messageHandler(&msg)
+			}
+			k.MarkMessage(&msg)
+		}
+	}()
+
 	// NOTE:
 	// Do not move the code below to a goroutine.
 	// The `ConsumeClaim` itself is called within a goroutine, see:
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
-		// log.Printf("Message claimed: value = %s, timestamp = %v, topic = %s", string(message.Value), message.Timestamp, message.Topic)
-		k.Stream <- *message
-		if k.autoMarkMessage {
-			k.MarkMessage(message)
-		}
+		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
+		claimedMessage <- *message
 	}
+
+	close(claimedMessage)
 
 	return nil
 }

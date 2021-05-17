@@ -5,5 +5,4 @@ type KafkaConf struct {
 	Brokers         []string
 	Topics          []string
 	ConsumerGroup   string
-	AutoMarkMessage bool
 }
