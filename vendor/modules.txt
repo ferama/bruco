@@ -1,6 +1,12 @@
 # github.com/Shopify/sarama v1.29.0
 ## explicit
 github.com/Shopify/sarama
+# github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6
+## explicit
+# github.com/coreos/go-etcd v2.0.0+incompatible
+## explicit
+# github.com/cpuguy83/go-md2man v1.0.10
+## explicit
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/eapache/go-resiliency v1.2.0
@@ -13,6 +19,8 @@ github.com/eapache/queue
 github.com/golang/snappy
 # github.com/hashicorp/go-uuid v1.0.2
 github.com/hashicorp/go-uuid
+# github.com/inconshreveable/mousetrap v1.0.0
+github.com/inconshreveable/mousetrap
 # github.com/jcmturner/aescts/v2 v2.0.0
 github.com/jcmturner/aescts/v2
 # github.com/jcmturner/dnsutils/v2 v2.0.0
@@ -64,6 +72,15 @@ github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
 # github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 github.com/rcrowley/go-metrics
+# github.com/spf13/cobra v1.1.3
+## explicit
+github.com/spf13/cobra
+# github.com/spf13/pflag v1.0.5
+github.com/spf13/pflag
+# github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8
+## explicit
+# github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77
+## explicit
 # golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
 golang.org/x/crypto/md4
 golang.org/x/crypto/pbkdf2
