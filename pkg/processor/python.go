@@ -60,6 +60,8 @@ func (p *Python) handleOutput() {
 	for {
 		out, rerr := p.ch.Read()
 		if out != nil {
+			// the worker ended its job. Mark it as available again
+			// putting in the availabe channel
 			p.available <- p
 		}
 		if rerr != nil {

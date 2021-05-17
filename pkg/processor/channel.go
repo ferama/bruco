@@ -40,7 +40,7 @@ func (c *channel) listen(onNewChannel bool) {
 	}
 	conn, err := c.listener.Accept()
 	if err != nil {
-		// log.Println(err)
+		log.Fatalln(err)
 		return
 	}
 	// log.Printf("client connected: %s", conn.RemoteAddr())
@@ -53,7 +53,6 @@ func (c *channel) Write(data []byte) error {
 	c.connected.Wait()
 	_, err := c.writer.Write(data)
 	if err != nil {
-		// log.Printf("write err: %s", err)
 		c.listen(false)
 		return err
 	}
@@ -65,7 +64,6 @@ func (c *channel) Read() ([]byte, error) {
 	c.connected.Wait()
 	out, err := c.reader.ReadBytes('\n')
 	if err != nil {
-		// log.Printf("read err: %s", err)
 		c.listen(false)
 		return nil, err
 	}
@@ -73,6 +71,5 @@ func (c *channel) Read() ([]byte, error) {
 }
 
 func (c *channel) Close() {
-	// log.Println("ch closed")
 	c.listener.Close()
 }
