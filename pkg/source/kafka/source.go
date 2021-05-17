@@ -11,11 +11,10 @@ import (
 )
 
 type KafkaSource struct {
-	consumerGroupSession sarama.ConsumerGroupSession
-	messageHandler       source.MessageHandler
+	messageHandler source.MessageHandler
 }
 
-func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
+func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 	kafkaSource := &KafkaSource{
 		messageHandler: nil,
 	}
@@ -45,8 +44,6 @@ func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
 		}
 	}()
 
-	// log.Println("Sarama consumer up and running!...")
-
 	return kafkaSource
 }
 
@@ -72,7 +69,7 @@ func (k *KafkaSource) resolveBalanceStrategy(strategy string) (sarama.BalanceStr
 
 // Setup is run at the beginning of a new session, before ConsumeClaim
 func (k *KafkaSource) Setup(session sarama.ConsumerGroupSession) error {
-	k.consumerGroupSession = session
+	log.Printf("Starting consumer session. Claims %v", session.Claims())
 	return nil
 }
 
@@ -83,8 +80,6 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	// log.Printf("Consume claim called for %d", claim.Partition())
-
 	claimedMessage := make(chan sarama.ConsumerMessage)
 	go func() {
 		log.Printf("message handler started for partition %d", claim.Partition())
@@ -97,7 +92,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 				}
 				k.messageHandler(outMsg)
 			}
-			k.MarkMessage(&msg)
+			session.MarkMessage(&msg, "")
 		}
 		log.Printf("message handler stopped for partition %d", claim.Partition())
 	}()
@@ -112,10 +107,5 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	}
 
 	close(claimedMessage)
-
 	return nil
-}
-
-func (k *KafkaSource) MarkMessage(msg *sarama.ConsumerMessage) {
-	k.consumerGroupSession.MarkMessage(msg, "")
 }
