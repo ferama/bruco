@@ -6,12 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	rootcmd "github.com/ferama/bruco/cmd/root"
 	"github.com/ferama/bruco/pkg/conf"
 	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/source"
-	"github.com/ferama/bruco/pkg/source/kafka"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 func handleEventResponse(response *processor.Response) {
@@ -28,20 +27,8 @@ var rootCmd = &cobra.Command{
 			panic(err)
 		}
 
-		var eventSource source.Source
-		sourceKind := cfg.Source["kind"]
-		asyncHandler := true
-
-		switch sourceKind {
-		case "kafka":
-			m, _ := yaml.Marshal(cfg.Source)
-			conf := &kafka.KafkaSourceConf{}
-			yaml.Unmarshal(m, conf)
-			eventSource = kafka.NewKafkaSource(conf)
-			asyncHandler = conf.AsyncHandler
-		default:
-			log.Fatalf("Invalid source kind: %s", sourceKind)
-		}
+		eventSource, sourceConf := rootcmd.GetEventSource(cfg)
+		asyncHandler := sourceConf.AsyncHandler
 
 		workers := processor.NewPool(cfg.Workers, cfg.LambdaPath)
 

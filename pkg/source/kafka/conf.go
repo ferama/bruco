@@ -1,4 +1,4 @@
-package kafka
+package kafkasource
 
 type KafkaSourceConf struct {
 	BalanceStrategy string   `yaml:"balanceStrategy"`
