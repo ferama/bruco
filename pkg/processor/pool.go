@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-type EvenCallback func(event *Response)
+type EventCallback func(event *Response)
 
 // Pool ...
 type Pool struct {
@@ -48,7 +48,7 @@ func NewPool(size int, lambdaPath string) *Pool {
 	return pool
 }
 
-func (p *Pool) HandleEventAsync(data []byte, callback EvenCallback) error {
+func (p *Pool) HandleEventAsync(data []byte, callback EventCallback) error {
 	python := <-p.availableWorkers
 	err := python.handleEvent(data)
 	go func() {

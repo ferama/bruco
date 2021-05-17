@@ -9,12 +9,15 @@ import (
 	rootcmd "github.com/ferama/bruco/cmd/root"
 	"github.com/ferama/bruco/pkg/conf"
 	"github.com/ferama/bruco/pkg/processor"
+	"github.com/ferama/bruco/pkg/sink"
 	"github.com/ferama/bruco/pkg/source"
 	"github.com/spf13/cobra"
 )
 
-func handleEventResponse(response *processor.Response) {
-	// log.Println(response.Data)
+func getEventCallback(eventSink sink.Sink) processor.EventCallback {
+	return func(response *processor.Response) {
+		eventSink.Publish([]byte(response.Data))
+	}
 }
 
 var rootCmd = &cobra.Command{
@@ -28,6 +31,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		eventSource, sourceConf := rootcmd.GetEventSource(cfg)
+		eventSink, _ := rootcmd.GetEventSink(cfg)
 		asyncHandler := sourceConf.AsyncHandler
 
 		workers := processor.NewPool(cfg.Workers, cfg.LambdaPath)
@@ -36,14 +40,14 @@ var rootCmd = &cobra.Command{
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
-				workers.HandleEventAsync(msg.Value, handleEventResponse)
+				workers.HandleEventAsync(msg.Value, getEventCallback(eventSink))
 			} else {
 				response, err := workers.HandleEvent(msg.Value)
 				if err != nil {
 					log.Println(err)
 					return
 				}
-				handleEventResponse(response)
+				getEventCallback(eventSink)(response)
 			}
 		})
 

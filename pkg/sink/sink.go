@@ -1,3 +1,5 @@
 package sink
 
-type Sink interface{}
+type Sink interface {
+	Publish(msg []byte)
+}

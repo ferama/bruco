@@ -17,5 +17,4 @@ sink:
   kind: kafka
   brokers:
     - localhost:9092
-  topics:
-    - test
+  topic: test-out
