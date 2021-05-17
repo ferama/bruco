@@ -34,8 +34,8 @@ func newChannel() (*channel, error) {
 	return c, nil
 }
 
-func (c *channel) listen(onStart bool) {
-	if !onStart {
+func (c *channel) listen(onNewChannel bool) {
+	if !onNewChannel {
 		c.connected.Add(1)
 	}
 	conn, err := c.listener.Accept()
