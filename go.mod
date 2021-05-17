@@ -1,4 +1,4 @@
-module github.com/ferama/coreai
+module github.com/ferama/bruco
 
 go 1.16
 

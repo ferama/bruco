@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/ferama/bruco/pkg/source"
 )
-
-type MessageHandler func(msg *sarama.ConsumerMessage)
 
 type KafkaSource struct {
 	consumerGroupSession sarama.ConsumerGroupSession
-	messageHandler       MessageHandler
+	messageHandler       source.MessageHandler
 }
 
 func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
@@ -39,7 +39,8 @@ func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
 			// server-side rebalance happens, the consumer session will need to be
 			// recreated to get the new claims
 			if err := consumerGroup.Consume(context.Background(), kconf.Topics, kafkaSource); err != nil {
-				log.Panicf("Error from consumer: %v", err)
+				log.Printf("error from consumer: %v", err)
+				time.Sleep(time.Second * 1)
 			}
 		}
 	}()
@@ -49,7 +50,7 @@ func NewKafkaSource(kconf *KafkaConf) *KafkaSource {
 	return kafkaSource
 }
 
-func (k *KafkaSource) SetMessageHandler(handler MessageHandler) {
+func (k *KafkaSource) SetMessageHandler(handler source.MessageHandler) {
 	k.messageHandler = handler
 }
 
@@ -82,18 +83,23 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	log.Printf("Consume claim called for %d", claim.Partition())
+	// log.Printf("Consume claim called for %d", claim.Partition())
 
 	claimedMessage := make(chan sarama.ConsumerMessage)
 	go func() {
-		for {
-			msg := <-claimedMessage
+		log.Printf("message handler started for partition %d", claim.Partition())
+		for msg := range claimedMessage {
 			// log.Printf("value = %s, partition = %d", string(msg.Value), claim.Partition())
 			if k.messageHandler != nil {
-				k.messageHandler(&msg)
+				outMsg := &source.Message{
+					Timestamp: msg.Timestamp,
+					Value:     msg.Value,
+				}
+				k.messageHandler(outMsg)
 			}
 			k.MarkMessage(&msg)
 		}
+		log.Printf("message handler stopped for partition %d", claim.Partition())
 	}()
 
 	// NOTE:

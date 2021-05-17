@@ -13,7 +13,7 @@ class Context:
 
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(f"%(asctime)s ({worker_name}: %(levelname)s) %(message)s")
+        formatter = logging.Formatter(f"%(asctime)s ({worker_name}): %(levelname)s %(message)s", "%Y/%m/%d %H:%M:%S")
         handler.setFormatter(formatter)
         root.addHandler(handler)
         self.worker_name = worker_name
@@ -56,7 +56,7 @@ class Wrapper:
             except Exception as e:
                 out = {
                     "data": "",
-                    "error": e
+                    "error": str(e)
                 }
                 out = json.dumps(out)
                 out += "\n"
