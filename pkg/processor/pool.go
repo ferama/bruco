@@ -1,4 +1,4 @@
-package pool
+package processor
 
 import (
 	"fmt"
@@ -11,7 +11,6 @@ type EvenCallback func(msg *Response)
 
 // Pool ...
 type Pool struct {
-	// filename(sessionName) -> python instance
 	pythonMap   map[string]*Python
 	wrapperPath string
 	lambdaPath  string

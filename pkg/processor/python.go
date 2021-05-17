@@ -1,4 +1,4 @@
-package pool
+package processor
 
 import (
 	"encoding/json"
@@ -38,7 +38,7 @@ func NewPython(name string, availableWorkers chan *Python,
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 
 	python := &Python{

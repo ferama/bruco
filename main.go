@@ -1,35 +1,47 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/ferama/coreai/pkg/pool"
+	"github.com/Shopify/sarama"
+	"github.com/ferama/coreai/pkg/processor"
+	"github.com/ferama/coreai/pkg/source/kafka"
 )
 
 func main() {
-	workers := pool.NewPool(8, "./lambda")
-	go func() {
-		i := 0
-		for {
-			i++
-			callback := func(msg *pool.Response) {
-				log.Println(msg.Data)
-			}
-			workers.HandleEvent([]byte("the event "+fmt.Sprint(i)), callback)
-			if i%8 == 0 {
-				time.Sleep(8 * time.Second)
-			}
-			// time.Sleep(time.Second / 2)
-		}
-	}()
+	source := kafka.NewKafkaSource(&kafka.KafkaConf{
+		Brokers:         []string{"localhost:9092"},
+		Topics:          []string{"test"},
+		ConsumerGroup:   "my-consumer-group",
+		AutoMarkMessage: false,
+	})
 
 	c := make(chan os.Signal, 10)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	<-c
-	workers.Destroy()
+
+	workers := processor.NewPool(3, "./hack/lambda")
+	// callback := func(response *pool.Response) {
+	// 	log.Println(response.Data)
+	// }
+	getCallback := func(source *kafka.KafkaSource, msg *sarama.ConsumerMessage) processor.EvenCallback {
+		return func(response *processor.Response) {
+			// log.Println(response.Data)
+			source.MarkMessage(msg)
+		}
+	}
+	for {
+		select {
+		case <-c:
+			log.Println("quit")
+			workers.Destroy()
+			return
+		case msg := <-source.Stream:
+			// log.Printf("value = %s, timestamp = %v, topic = %s", string(msg.Value), msg.Timestamp, msg.Topic)
+			// workers.HandleEvent(msg.Value, callback)
+			workers.HandleEvent(msg.Value, getCallback(source, &msg))
+		}
+	}
 }

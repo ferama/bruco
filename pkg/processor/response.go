@@ -1,4 +1,4 @@
-package pool
+package processor
 
 // Response ...
 type Response struct {
