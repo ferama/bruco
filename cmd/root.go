@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -15,19 +16,19 @@ import (
 )
 
 func getEventCallback(eventSink sink.Sink) processor.EventCallback {
-	return func(response *processor.Response) {
+	return func(response *processor.Response) error {
 		if response.Error != "" {
-			log.Println(response.Error)
-			return
+			return errors.New(response.Error)
 		}
 		if len(response.Data) == 0 {
-			return
+			return nil
 		}
 		msg := &sink.Message{
 			Key:   response.Key,
 			Value: []byte(response.Data),
 		}
 		eventSink.Publish(msg)
+		return nil
 	}
 }
 
@@ -47,18 +48,19 @@ var rootCmd = &cobra.Command{
 
 		workers := processor.NewPool(cfg.GerProcessorConf())
 
-		eventSource.SetMessageHandler(func(msg *source.Message) {
+		eventSource.SetMessageHandler(func(msg *source.Message) error {
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
 				workers.HandleEventAsync(msg.Value, getEventCallback(eventSink))
+				return nil
 			} else {
 				response, err := workers.HandleEvent(msg.Value)
 				if err != nil {
-					log.Println(err)
-					return
+					log.Println("event processing error: ", err)
+					return err
 				}
-				getEventCallback(eventSink)(response)
+				return getEventCallback(eventSink)(response)
 			}
 		})
 

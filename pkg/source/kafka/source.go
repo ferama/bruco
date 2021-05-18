@@ -105,7 +105,10 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 					Timestamp: msg.Timestamp,
 					Value:     msg.Value,
 				}
-				k.messageHandler(outMsg)
+				err := k.messageHandler(outMsg)
+				if err != nil {
+					log.Printf("[KAFKA-SOURCE] %s", err)
+				}
 			}
 			session.MarkMessage(&msg, "")
 		}

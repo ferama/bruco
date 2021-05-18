@@ -2,7 +2,7 @@ package source
 
 // MessageHandler is a type for handler callback function. The handler
 // will be invoked each time a source gets a message
-type MessageHandler func(msg *Message)
+type MessageHandler func(msg *Message) error
 
 // Source interface that needs to be implemented from each source
 type Source interface {

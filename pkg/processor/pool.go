@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-type EventCallback func(event *Response)
+type EventCallback func(event *Response) error
 
 // Pool ...
 type Pool struct {
