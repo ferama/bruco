@@ -7,6 +7,7 @@ type KafkaSourceConf struct {
 	Brokers         []string `yaml:"brokers"`
 	Topics          []string `yaml:"topics"`
 	ConsumerGroup   string   `yaml:"consumerGroup"`
+	Offset          string   `yaml:"offset"`
 }
 
 func (c *KafkaSourceConf) IsAsyncHandler() bool {

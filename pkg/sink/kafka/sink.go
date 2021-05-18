@@ -3,6 +3,7 @@ package kafkasink
 import (
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/Shopify/sarama"
 	"github.com/ferama/bruco/pkg/sink"
@@ -51,7 +52,7 @@ func (s *KafkaSink) resolvePartition(cfg *KafkaSinkConf) int32 {
 }
 
 func (s *KafkaSink) resolvePartitioner(cfg *KafkaSinkConf) func(string) sarama.Partitioner {
-	switch cfg.Partitioner {
+	switch lower := strings.ToLower(cfg.Partitioner); lower {
 	case "":
 		if s.partition >= 0 {
 			return sarama.NewManualPartitioner

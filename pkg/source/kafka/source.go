@@ -2,8 +2,8 @@ package kafkasource
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -20,12 +20,10 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 	}
 
 	config := sarama.NewConfig()
+	config.ClientID = "bruco"
 	config.Consumer.Offsets.AutoCommit.Enable = true
-	config.Consumer.Offsets.Initial = sarama.OffsetNewest
-	balanceStrategy, err := kafkaSource.resolveBalanceStrategy(kconf.BalanceStrategy)
-	if err != nil {
-		log.Panicln(err)
-	}
+	config.Consumer.Offsets.Initial = kafkaSource.resolveOffset(kconf.Offset)
+	balanceStrategy := kafkaSource.resolveBalanceStrategy(kconf.BalanceStrategy)
 	config.Consumer.Group.Rebalance.Strategy = balanceStrategy
 
 	consumerGroup, err := sarama.NewConsumerGroup(kconf.Brokers, kconf.ConsumerGroup, config)
@@ -43,6 +41,7 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 			}
 		}
 	}()
+	log.Printf("sarama consumer started. Topics: %s", kconf.Topics)
 
 	return kafkaSource
 }
@@ -53,19 +52,35 @@ func (k *KafkaSource) SetMessageHandler(handler source.MessageHandler) {
 	k.messageHandler = handler
 }
 
-func (k *KafkaSource) resolveBalanceStrategy(strategy string) (sarama.BalanceStrategy, error) {
-	if strategy == "" {
-		return sarama.BalanceStrategyRange, nil
+func (k *KafkaSource) resolveOffset(offset string) int64 {
+	if offset == "" {
+		return sarama.OffsetNewest
 	}
-	switch strategy {
-	case "sticky":
-		return sarama.BalanceStrategySticky, nil
-	case "roundrobin":
-		return sarama.BalanceStrategyRoundRobin, nil
-	case "range":
-		return sarama.BalanceStrategyRange, nil
+	switch lower := strings.ToLower(offset); lower {
+	case "latest":
+		return sarama.OffsetNewest
+	case "earliest":
+		return sarama.OffsetOldest
 	default:
-		return nil, fmt.Errorf("unrecognized balance strategy: %s", strategy)
+		log.Fatalf("invalid offset spec. %s", offset)
+		return 0
+	}
+}
+
+func (k *KafkaSource) resolveBalanceStrategy(strategy string) sarama.BalanceStrategy {
+	if strategy == "" {
+		return sarama.BalanceStrategyRange
+	}
+	switch lower := strings.ToLower(strategy); lower {
+	case "sticky":
+		return sarama.BalanceStrategySticky
+	case "roundrobin":
+		return sarama.BalanceStrategyRoundRobin
+	case "range":
+		return sarama.BalanceStrategyRange
+	default:
+		log.Fatalf("unrecognized balance strategy: %s", strategy)
+		return nil
 	}
 }
 
@@ -104,7 +119,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	// The `ConsumeClaim` itself is called within a goroutine, see:
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
-		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
+		log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
 		claimedMessage <- *message
 	}
 
