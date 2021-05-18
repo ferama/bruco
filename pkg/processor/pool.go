@@ -26,12 +26,12 @@ func NewPool(cfg *ProcessorConf) *Pool {
 		log.Fatal(err)
 	}
 	if _, err = file.Write(data); err != nil {
-		log.Fatal("Failed to write to temporary file", err)
+		log.Fatal("[PROCESSOR]  failed to write to temporary file", err)
 	}
 	if err := file.Close(); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("unpacked wrapper to %s", file.Name())
+	log.Printf("[PROCESSOR] unpacked wrapper to %s", file.Name())
 
 	pool := &Pool{
 		pythonMap:        make(map[string]*Python),
@@ -44,7 +44,7 @@ func NewPool(cfg *ProcessorConf) *Pool {
 		pool.createPythonInstance(name)
 
 	}
-	log.Printf("Allocated %d workers", cfg.Workers)
+	log.Printf("[PROCESSOR] allocated %d workers", cfg.Workers)
 	return pool
 }
 

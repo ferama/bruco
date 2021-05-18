@@ -28,7 +28,7 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 
 	consumerGroup, err := sarama.NewConsumerGroup(kconf.Brokers, kconf.ConsumerGroup, config)
 	if err != nil {
-		log.Panicf("Error creating consumer group client: %v", err)
+		log.Panicf("[KAFKA-SOURCE] error creating consumer group client: %v", err)
 	}
 	go func() {
 		for {
@@ -36,12 +36,12 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 			// server-side rebalance happens, the consumer session will need to be
 			// recreated to get the new claims
 			if err := consumerGroup.Consume(context.Background(), kconf.Topics, kafkaSource); err != nil {
-				log.Printf("error from consumer: %v", err)
+				log.Printf("[KAFKA-SOURCE] error from consumer: %v", err)
 				time.Sleep(time.Second * 1)
 			}
 		}
 	}()
-	log.Printf("sarama consumer started. Topics: %s", kconf.Topics)
+	log.Printf("[KAFKA-SOURCE] consuming topics: %s", kconf.Topics)
 
 	return kafkaSource
 }
@@ -62,7 +62,7 @@ func (k *KafkaSource) resolveOffset(offset string) int64 {
 	case "earliest":
 		return sarama.OffsetOldest
 	default:
-		log.Fatalf("invalid offset spec. %s", offset)
+		log.Fatalf("[KAFKA-SOURCE] invalid offset spec. %s", offset)
 		return 0
 	}
 }
@@ -79,14 +79,14 @@ func (k *KafkaSource) resolveBalanceStrategy(strategy string) sarama.BalanceStra
 	case "range":
 		return sarama.BalanceStrategyRange
 	default:
-		log.Fatalf("unrecognized balance strategy: %s", strategy)
+		log.Fatalf("[KAFKA-SOURCE] unrecognized balance strategy: %s", strategy)
 		return nil
 	}
 }
 
 // Setup is run at the beginning of a new session, before ConsumeClaim
 func (k *KafkaSource) Setup(session sarama.ConsumerGroupSession) error {
-	log.Printf("Starting consumer session. Claims %v", session.Claims())
+	log.Printf("[KAFKA-SOURCE] starting consumer session. claims %v", session.Claims())
 	return nil
 }
 
@@ -99,7 +99,7 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	claimedMessage := make(chan sarama.ConsumerMessage)
 	go func() {
-		log.Printf("message handler started for partition %d", claim.Partition())
+		// log.Printf("message handler started for partition %d", claim.Partition())
 		for msg := range claimedMessage {
 			// log.Printf("value = %s, partition = %d", string(msg.Value), claim.Partition())
 			if k.messageHandler != nil {
@@ -111,7 +111,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 			}
 			session.MarkMessage(&msg, "")
 		}
-		log.Printf("message handler stopped for partition %d", claim.Partition())
+		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
 	}()
 
 	// NOTE:
@@ -119,7 +119,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	// The `ConsumeClaim` itself is called within a goroutine, see:
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
-		log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
+		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
 		claimedMessage <- *message
 	}
 

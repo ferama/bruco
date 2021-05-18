@@ -37,6 +37,8 @@ func NewKafkaSink(kconf *KafkaSinkConf) *KafkaSink {
 
 	sink.partition = sink.resolvePartition(kconf)
 	sink.producer = producer
+
+	log.Printf("[KAFKA-SINK] started sink brokers: %s, topic: %s", kconf.Brokers, kconf.Topic)
 	return sink
 }
 
@@ -46,7 +48,7 @@ func (s *KafkaSink) resolvePartition(cfg *KafkaSinkConf) int32 {
 	}
 	i, err := strconv.Atoi(cfg.Partition)
 	if err != nil {
-		log.Fatalf("Invalid conf. Sink partition %s", cfg.Partition)
+		log.Fatalf("[KAFKA-SINK] invalid conf. Sink partition %s", cfg.Partition)
 	}
 	return int32(i)
 }
@@ -65,11 +67,11 @@ func (s *KafkaSink) resolvePartitioner(cfg *KafkaSinkConf) func(string) sarama.P
 		return sarama.NewRandomPartitioner
 	case "manual":
 		if s.partition == -1 {
-			log.Fatalf("partition is required while using manual partitioner")
+			log.Fatalf("[KAFKA-SINK] partition is required while using manual partitioner")
 		}
 		return sarama.NewManualPartitioner
 	default:
-		log.Fatalf("Invalid partitioner %s", cfg.Partitioner)
+		log.Fatalf("[KAFKA-SINK] invalid partitioner %s", cfg.Partitioner)
 		return nil
 	}
 }
