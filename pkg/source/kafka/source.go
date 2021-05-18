@@ -99,9 +99,7 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	claimedMessage := make(chan sarama.ConsumerMessage)
 	go func() {
-		// log.Printf("message handler started for partition %d", claim.Partition())
 		for msg := range claimedMessage {
-			// log.Printf("value = %s, partition = %d", string(msg.Value), claim.Partition())
 			if k.messageHandler != nil {
 				outMsg := &source.Message{
 					Timestamp: msg.Timestamp,

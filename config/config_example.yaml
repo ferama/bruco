@@ -1,5 +1,5 @@
 processor:
-  workDir: "./hack/lambda"
+  workDir: "./hack/examples/lambda"
   # OPTIONAL: defult handler
   moduleName: handler
   workers: 3
@@ -27,5 +27,5 @@ sink:
   topic: test-out
   # OPTIONAL: target partition
   partition: 42
-  # OPTIONAL: partitioner
-  partitioner: manual # values: manual, hash, random
+  # OPTIONAL: default hash if partition is not defined
+  partitioner: hash # values: manual, hash, random
