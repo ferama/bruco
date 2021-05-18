@@ -6,6 +6,11 @@ import signal
 import socket
 import logging
 
+class Response:
+    def __init__(self, key, data):
+        self.key = key
+        self.data = data
+
 class Context: 
     def __init__(self, worker_name):
         root = logging.getLogger()
@@ -16,8 +21,10 @@ class Context:
         formatter = logging.Formatter(f"%(asctime)s ({worker_name}): %(levelname)s %(message)s", "%Y/%m/%d %H:%M:%S")
         handler.setFormatter(formatter)
         root.addHandler(handler)
-        self.worker_name = worker_name
+
         self.logger = logging
+        self.worker_name = worker_name
+        self.response = Response
 
 
 class Wrapper:
@@ -46,10 +53,18 @@ class Wrapper:
             try:
                 response = module.handle_event(context, msg)
                 if not response: response = ""
-                out = {
-                    "data": response,
-                    "error": ""
-                }
+                if type(response) == Response:
+                    out = {
+                        "key": response.key,
+                        "data": response.data,
+                        "error": ""
+                    }
+                else:
+                    out = {
+                        "key": "",
+                        "data": response,
+                        "error": ""
+                    }
                 out = json.dumps(out)
                 out += "\n"
                 client.send(out.encode())

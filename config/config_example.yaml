@@ -1,5 +1,6 @@
-lambdaPath: "./hack/lambda"
-workers: 3
+processor:
+  lambdaPath: "./hack/lambda"
+  workers: 3
 
 source:
   kind: kafka

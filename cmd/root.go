@@ -16,13 +16,13 @@ import (
 
 func getEventCallback(eventSink sink.Sink) processor.EventCallback {
 	return func(response *processor.Response) {
-		eventSink.Publish([]byte(response.Data))
+		eventSink.Publish(response.Key, []byte(response.Data))
 	}
 }
 
 var rootCmd = &cobra.Command{
 	Use:  "bruco config_file_path.yaml",
-	Long: "The pipeline processing tool.",
+	Long: "The streaming pipeline processing tool.",
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, err := conf.LoadConfig(args[0])

@@ -39,12 +39,12 @@ func NewPool(cfg *ProcessorConf) *Pool {
 		wrapperPath:      file.Name(),
 		lambdaPath:       cfg.LambdaPath,
 	}
-
 	for i := 0; i < cfg.Workers; i++ {
 		name := fmt.Sprintf("worker%d", i)
 		pool.createPythonInstance(name)
 
 	}
+	log.Printf("Allocated %d workers", cfg.Workers)
 	return pool
 }
 

@@ -1,5 +1,5 @@
 package sink
 
 type Sink interface {
-	Publish(msg []byte)
+	Publish(key string, msg []byte)
 }
