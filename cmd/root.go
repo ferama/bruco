@@ -32,9 +32,9 @@ var rootCmd = &cobra.Command{
 
 		eventSource, sourceConf := rootcmd.GetEventSource(cfg)
 		eventSink, _ := rootcmd.GetEventSink(cfg)
-		asyncHandler := sourceConf.AsyncHandler
+		asyncHandler := sourceConf.IsAsyncHandler()
 
-		workers := processor.NewPool(cfg.Workers, cfg.LambdaPath)
+		workers := processor.NewPool(cfg.GerProcessorConf())
 
 		eventSource.SetMessageHandler(func(msg *source.Message) {
 			if asyncHandler {

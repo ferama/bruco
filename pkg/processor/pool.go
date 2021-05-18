@@ -19,7 +19,7 @@ type Pool struct {
 }
 
 // GetPoolInstance ...
-func NewPool(size int, lambdaPath string) *Pool {
+func NewPool(cfg *ProcessorConf) *Pool {
 	data, _ := pythonWrapper.ReadFile("wrapper/wrapper.py")
 	file, err := ioutil.TempFile(os.TempDir(), "python-wrapper-")
 	if err != nil {
@@ -35,12 +35,12 @@ func NewPool(size int, lambdaPath string) *Pool {
 
 	pool := &Pool{
 		pythonMap:        make(map[string]*Python),
-		availableWorkers: make(chan *Python, size),
+		availableWorkers: make(chan *Python, cfg.Workers),
 		wrapperPath:      file.Name(),
-		lambdaPath:       lambdaPath,
+		lambdaPath:       cfg.LambdaPath,
 	}
 
-	for i := 0; i < size; i++ {
+	for i := 0; i < cfg.Workers; i++ {
 		name := fmt.Sprintf("worker%d", i)
 		pool.createPythonInstance(name)
 

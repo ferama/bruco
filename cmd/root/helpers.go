@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/ferama/bruco/pkg/conf"
+	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/sink"
 	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
 	"github.com/ferama/bruco/pkg/source"
@@ -11,15 +12,20 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func GetEventSource(cfg *conf.Config) (source.Source, *kafkasource.KafkaSourceConf) {
+func GerProcessorConf(cfg *conf.Config) *processor.ProcessorConf {
+	m, _ := yaml.Marshal(cfg.Processor)
+	conf := &processor.ProcessorConf{}
+	yaml.Unmarshal(m, conf)
+	return conf
+}
+
+func GetEventSource(cfg *conf.Config) (source.Source, source.SourceConf) {
 	var eventSource source.Source
 
 	sourceKind := cfg.Source["kind"]
 	switch sourceKind {
 	case "kafka":
-		m, _ := yaml.Marshal(cfg.Source)
-		conf := &kafkasource.KafkaSourceConf{}
-		yaml.Unmarshal(m, conf)
+		conf := cfg.GetSourceConf().(*kafkasource.KafkaSourceConf)
 		eventSource = kafkasource.NewKafkaSource(conf)
 		return eventSource, conf
 	default:
@@ -28,15 +34,13 @@ func GetEventSource(cfg *conf.Config) (source.Source, *kafkasource.KafkaSourceCo
 	}
 }
 
-func GetEventSink(cfg *conf.Config) (sink.Sink, *kafkasink.KafkaSinkConf) {
+func GetEventSink(cfg *conf.Config) (sink.Sink, sink.SinkConf) {
 	var eventSink sink.Sink
 
 	sinkKind := cfg.Sink["kind"]
 	switch sinkKind {
 	case "kafka":
-		m, _ := yaml.Marshal(cfg.Source)
-		conf := &kafkasink.KafkaSinkConf{}
-		yaml.Unmarshal(m, conf)
+		conf := cfg.GetSinkConf().(*kafkasink.KafkaSinkConf)
 		eventSink = kafkasink.NewKafkaSink(conf)
 		return eventSink, conf
 	default:
