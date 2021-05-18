@@ -1,7 +1,8 @@
 package kafkasource
 
 type KafkaSourceConf struct {
-	AsyncHandler    bool     `yaml:"asyncHandler"`
+	AsyncHandler bool `yaml:"asyncHandler"`
+
 	BalanceStrategy string   `yaml:"balanceStrategy"`
 	Brokers         []string `yaml:"brokers"`
 	Topics          []string `yaml:"topics"`

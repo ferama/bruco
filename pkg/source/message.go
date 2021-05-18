@@ -2,8 +2,7 @@ package source
 
 import "time"
 
-type MessageHandler func(msg *Message)
-
+// Message is the source message struct
 type Message struct {
 	Value     []byte
 	Timestamp time.Time

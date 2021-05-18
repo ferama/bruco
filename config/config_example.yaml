@@ -9,7 +9,8 @@ source:
   topics:
     - test
   consumerGroup: my-consumer-group
-  balanceStrategy: range
+  # OPTIONAL: default range
+  balanceStrategy: range # values: range, sticky, roundrobin
   # NOTE: the async handler version will not guarantee
   # messages handling order between same partition
   asyncHandler: true
@@ -19,3 +20,7 @@ sink:
   brokers:
     - localhost:9092
   topic: test-out
+  # OPTIONAL: target partition
+  partition: 42
+  # OPTIONAL: partitioner
+  partitioner: manual # values: manual, hash, random

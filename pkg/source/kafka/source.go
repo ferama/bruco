@@ -47,6 +47,8 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 	return kafkaSource
 }
 
+// SetMessageHandler sets the callback function that will be invoked on each
+// message received from the kafka source
 func (k *KafkaSource) SetMessageHandler(handler source.MessageHandler) {
 	k.messageHandler = handler
 }
