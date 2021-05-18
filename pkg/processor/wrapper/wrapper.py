@@ -44,11 +44,11 @@ class Wrapper:
     def start(self):
         context = Context(self.worker_name)
         module = importlib.import_module(self.module_name)
-        module.init_context(context)
+        if hasattr(module, "init_context"):
+            module.init_context(context)
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((socket.gethostname(), self.port))
-
         while True:
             msg = client.recv(1024 * 1024 * 100)
             try:
@@ -56,7 +56,7 @@ class Wrapper:
                 if not response: response = ""
                 if type(response) == Response:
                     out = {
-                        "key": response.key,
+                        "key": str(response.key),
                         "data": response.data,
                         "error": ""
                     }

@@ -78,7 +78,7 @@ func (s *KafkaSink) resolvePartitioner(cfg *KafkaSinkConf) func(string) sarama.P
 
 // Publish send a message through the sink
 func (s *KafkaSink) Publish(msg *sink.Message) {
-	// log.Printf("Publishing: %s %s", key, string(msg))
+	// log.Printf("Publishing: %s %s", msg.Key, msg.Value)
 	message := &sarama.ProducerMessage{
 		Topic:     s.topic,
 		Partition: s.partition,
