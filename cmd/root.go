@@ -16,7 +16,11 @@ import (
 
 func getEventCallback(eventSink sink.Sink) processor.EventCallback {
 	return func(response *processor.Response) {
-		eventSink.Publish(response.Key, []byte(response.Data))
+		msg := &sink.Message{
+			Key:   response.Key,
+			Value: []byte(response.Data),
+		}
+		eventSink.Publish(msg)
 	}
 }
 

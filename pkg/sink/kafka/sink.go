@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/Shopify/sarama"
+	"github.com/ferama/bruco/pkg/sink"
 )
 
 type KafkaSink struct {
@@ -31,9 +32,9 @@ func NewKafkaSink(kconf *KafkaSinkConf) *KafkaSink {
 	return sink
 }
 
-func (s *KafkaSink) Publish(key string, msg []byte) {
+func (s *KafkaSink) Publish(msg *sink.Message) {
 	// log.Printf("Publishing: %s %s", key, string(msg))
 	message := &sarama.ProducerMessage{Topic: s.topic, Partition: int32(-1)}
-	message.Value = sarama.ByteEncoder(msg)
+	message.Value = sarama.ByteEncoder(msg.Value)
 	s.producer.SendMessage(message)
 }
