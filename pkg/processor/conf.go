@@ -1,6 +1,7 @@
 package processor
 
 type ProcessorConf struct {
-	LambdaPath string `yaml:"lambdaPath"`
+	WorkDir    string `yaml:"workDir"`
+	ModuleName string `yaml:"moduleName"`
 	Workers    int    `yaml:"workers"`
 }

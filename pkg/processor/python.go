@@ -20,16 +20,17 @@ type Python struct {
 
 // NewPython creates a python instance
 func NewPython(name string, availableWorkers chan *Python,
-	wrapperPath string, lambdaPath string) *Python {
+	wrapperPath string, workdir string, moduleName string) *Python {
 	ch, _ := newChannel()
 
 	pythonPath := "python3"
 
 	args := []string{
 		pythonPath, "-u", wrapperPath,
-		"--lambda-path", lambdaPath,
+		"--workdir", workdir,
 		"--port", fmt.Sprintf("%d", ch.Port),
 		"--worker-name", name,
+		"--module-name", moduleName,
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)

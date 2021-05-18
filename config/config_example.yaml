@@ -1,5 +1,7 @@
 processor:
-  lambdaPath: "./hack/lambda"
+  workDir: "./hack/lambda"
+  # OPTIONAL: defult handler
+  moduleName: handler
   workers: 3
 
 source:

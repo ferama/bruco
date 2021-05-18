@@ -13,7 +13,8 @@ type EventCallback func(event *Response)
 type Pool struct {
 	pythonMap   map[string]*Python
 	wrapperPath string
-	lambdaPath  string
+	workDir     string
+	moduleName  string
 
 	availableWorkers chan *Python
 }
@@ -21,12 +22,12 @@ type Pool struct {
 // GetPoolInstance ...
 func NewPool(cfg *ProcessorConf) *Pool {
 	data, _ := pythonWrapper.ReadFile("wrapper/wrapper.py")
-	file, err := ioutil.TempFile(os.TempDir(), "python-wrapper-")
+	file, err := ioutil.TempFile(os.TempDir(), "bruco-python-wrapper-")
 	if err != nil {
 		log.Fatal(err)
 	}
 	if _, err = file.Write(data); err != nil {
-		log.Fatal("[PROCESSOR]  failed to write to temporary file", err)
+		log.Fatal("[PROCESSOR] failed to write to temporary file", err)
 	}
 	if err := file.Close(); err != nil {
 		log.Fatal(err)
@@ -37,8 +38,9 @@ func NewPool(cfg *ProcessorConf) *Pool {
 		pythonMap:        make(map[string]*Python),
 		availableWorkers: make(chan *Python, cfg.Workers),
 		wrapperPath:      file.Name(),
-		lambdaPath:       cfg.LambdaPath,
+		workDir:          cfg.WorkDir,
 	}
+	pool.moduleName = pool.resolveModuleName(cfg.ModuleName)
 	for i := 0; i < cfg.Workers; i++ {
 		name := fmt.Sprintf("worker%d", i)
 		pool.createPythonInstance(name)
@@ -46,6 +48,13 @@ func NewPool(cfg *ProcessorConf) *Pool {
 	}
 	log.Printf("[PROCESSOR] allocated %d workers", cfg.Workers)
 	return pool
+}
+
+func (p *Pool) resolveModuleName(name string) string {
+	if name == "" {
+		return "handler"
+	}
+	return name
 }
 
 func (p *Pool) HandleEventAsync(data []byte, callback EventCallback) error {
@@ -72,7 +81,11 @@ func (p *Pool) HandleEvent(data []byte) (*Response, error) {
 
 // createPythonInstance ...
 func (p *Pool) createPythonInstance(name string) *Python {
-	python := NewPython(name, p.availableWorkers, p.wrapperPath, p.lambdaPath)
+	python := NewPython(name,
+		p.availableWorkers,
+		p.wrapperPath,
+		p.workDir,
+		p.moduleName)
 	p.pythonMap[name] = python
 
 	// log.Println("New python instance started: " + name)

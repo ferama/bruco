@@ -28,11 +28,12 @@ class Context:
 
 
 class Wrapper:
-    def __init__(self, lambda_path: str, port: int, worker_name: str):
+    def __init__(self, workdir: str, module_name: str, port: int, worker_name: str):
         self.port = port
         self.worker_name = worker_name
+        self.module_name = module_name
 
-        os.chdir(lambda_path)
+        os.chdir(workdir)
         sys.path.append(".")
         
         signal.signal(signal.SIGINT, self.sigint_handler)
@@ -42,7 +43,7 @@ class Wrapper:
 
     def start(self):
         context = Context(self.worker_name)
-        module = importlib.import_module("handler")
+        module = importlib.import_module(self.module_name)
         module.init_context(context)
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -81,11 +82,16 @@ class Wrapper:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="the python shell")
-    parser.add_argument("--lambda-path", 
+    parser.add_argument("--workdir", 
                             required=True,
-                            metavar="lambda_path", 
+                            metavar="workdir", 
                             type=str, 
                             help="the working directory")
+    parser.add_argument("--module-name", 
+                            required=True,
+                            metavar="module_name", 
+                            type=str, 
+                            help="the module name")
     parser.add_argument("--port", 
                             required=True,
                             metavar="port", 
@@ -97,5 +103,9 @@ if __name__ == "__main__":
                             type=str, 
                             help="the worker name")
     args = parser.parse_args()
-    w = Wrapper(args.lambda_path, args.port, args.worker_name)
+    w = Wrapper(
+            args.workdir, 
+            args.module_name,
+            args.port, 
+            args.worker_name)
     w.start()
