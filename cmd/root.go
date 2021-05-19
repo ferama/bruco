@@ -15,19 +15,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func getEventCallback(eventSink sink.Sink) processor.EventCallback {
-	return func(response *processor.Response) error {
+func getEventCallback(eventSink sink.Sink, resolve chan error) processor.EventCallback {
+	return func(response *processor.Response) {
 		if eventSink == nil {
 			if response.Data != "" {
 				log.Println("[ROOT] WARNING: processor has a return value but no sink is configured")
 			}
-			return nil
+			resolve <- nil
+			return
 		}
 		if response.Error != "" {
-			return errors.New(response.Error)
+			resolve <- errors.New(response.Error)
+			return
 		}
 		if len(response.Data) == 0 {
-			return nil
+			resolve <- nil
+			return
 		}
 		msg := &sink.Message{
 			Key:   response.Key,
@@ -37,7 +40,7 @@ func getEventCallback(eventSink sink.Sink) processor.EventCallback {
 		if err != nil {
 			log.Printf("[ROOT] publish error: %s", err)
 		}
-		return err
+		resolve <- err
 	}
 }
 
@@ -57,21 +60,20 @@ var rootCmd = &cobra.Command{
 
 		workers := processor.NewPool(cfg.GerProcessorConf())
 
-		eventSource.SetMessageHandler(func(msg *source.Message) error {
+		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan error) {
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
-				workers.HandleEventAsync(msg.Value, getEventCallback(eventSink))
+				workers.HandleEventAsync(msg.Value, getEventCallback(eventSink, resolve))
 				// the async handler never returns an error to the source consumers.
 				// The source will always consider the message as successfully processesd
-				return nil
 			} else {
 				response, err := workers.HandleEvent(msg.Value)
 				if err != nil {
-					log.Println("event processing error: ", err)
-					return err
+					resolve <- err
+				} else {
+					getEventCallback(eventSink, resolve)(response)
 				}
-				return getEventCallback(eventSink)(response)
 			}
 		})
 
