@@ -15,6 +15,7 @@ type Pool struct {
 	wrapperPath string
 	workDir     string
 	moduleName  string
+	env         map[string]string
 
 	availableWorkers chan *Python
 }
@@ -39,10 +40,11 @@ func NewPool(cfg *ProcessorConf) *Pool {
 		availableWorkers: make(chan *Python, cfg.Workers),
 		wrapperPath:      file.Name(),
 		workDir:          cfg.WorkDir,
+		env:              cfg.Env,
 	}
 	pool.moduleName = pool.resolveModuleName(cfg.ModuleName)
 	for i := 0; i < cfg.Workers; i++ {
-		name := fmt.Sprintf("worker%d", i)
+		name := fmt.Sprintf("worker-%d", i)
 		pool.createPythonInstance(name)
 
 	}
@@ -85,7 +87,9 @@ func (p *Pool) createPythonInstance(name string) *Python {
 		p.availableWorkers,
 		p.wrapperPath,
 		p.workDir,
-		p.moduleName)
+		p.moduleName,
+		p.env,
+	)
 	p.pythonMap[name] = python
 
 	// log.Println("New python instance started: " + name)

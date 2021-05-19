@@ -120,6 +120,8 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	// The `ConsumeClaim` itself is called within a goroutine, see:
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
+		// lag := claim.HighWaterMarkOffset() - message.Offset
+		// log.Printf("### partition: %d lag: %d", claim.Partition(), lag)
 		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
 		claimedMessage <- *message
 	}

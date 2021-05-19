@@ -3,6 +3,9 @@ processor:
   # OPTIONAL: defult handler
   moduleName: handler
   workers: 3
+  env:
+    VAR1: var1-value
+    VAR2: var2-value
 
 source:
   kind: kafka
