@@ -26,6 +26,7 @@ source:
   # Increase this one if you have slow consumers to prevent
   # rebalance loop
   rebalanceTimeout: 120
+  sessionTimeout: 20
 
 # OPTIONAL: you can have a source and a processor without a sink
 sink:

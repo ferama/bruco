@@ -30,6 +30,11 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 		rebalanceTimeout = kconf.RebalanceTimeout
 	}
 	config.Consumer.Group.Rebalance.Timeout = time.Second * time.Duration(rebalanceTimeout)
+	sessionTimeout := 10
+	if kconf.SessionTimeout != 0 {
+		sessionTimeout = kconf.SessionTimeout
+	}
+	config.Consumer.Group.Session.Timeout = time.Second * time.Duration(sessionTimeout)
 	// log.Printf("rebalance timeout %d", config.Consumer.Group.Rebalance.Timeout)
 
 	config.Consumer.Offsets.Initial = kafkaSource.resolveOffset(kconf.Offset)
