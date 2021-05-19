@@ -2,7 +2,7 @@ import time
 
 def handle_event(context, data):
     context.logger.info(data.decode())
-    time.sleep(1.5)
+    time.sleep(3)
     return data.decode() +  " test"
 
 def init_context(context):

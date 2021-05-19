@@ -65,8 +65,6 @@ var rootCmd = &cobra.Command{
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
 				workers.HandleEventAsync(msg.Value, getEventCallback(eventSink, resolve))
-				// the async handler never returns an error to the source consumers.
-				// The source will always consider the message as successfully processesd
 			} else {
 				response, err := workers.HandleEvent(msg.Value)
 				if err != nil {

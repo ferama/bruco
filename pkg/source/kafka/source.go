@@ -100,7 +100,6 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	claimedMessage := make(chan sarama.ConsumerMessage)
 	go func() {
 		for msg := range claimedMessage {
-			// isError := false
 			if k.messageHandler != nil {
 				outMsg := &source.Message{
 					Timestamp: msg.Timestamp,
