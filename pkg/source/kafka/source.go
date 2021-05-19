@@ -109,7 +109,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 				err := k.messageHandler(outMsg)
 				if err != nil {
 					isError = true
-					log.Printf("[KAFKA-SOURCE] %s", err)
+					log.Printf("[KAFKA-SOURCE] handler error: %s", err)
 				}
 			}
 			if !isError {
