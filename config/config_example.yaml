@@ -19,9 +19,9 @@ source:
   consumerGroup: my-consumer-group
   # OPTIONAL: default range
   balanceStrategy: range # values: range, sticky, roundrobin
-  # NOTE: the async handler version will not guarantee
+  # NOTE: the async version (fireAndForget=true) will not guarantee
   # messages handling order between same partition
-  asyncHandler: true
+  fireAndForget: true
 
 sink:
   kind: kafka

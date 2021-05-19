@@ -100,6 +100,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	claimedMessage := make(chan sarama.ConsumerMessage)
 	go func() {
 		for msg := range claimedMessage {
+			isError := false
 			if k.messageHandler != nil {
 				outMsg := &source.Message{
 					Timestamp: msg.Timestamp,
@@ -107,10 +108,13 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 				}
 				err := k.messageHandler(outMsg)
 				if err != nil {
+					isError = true
 					log.Printf("[KAFKA-SOURCE] %s", err)
 				}
 			}
-			session.MarkMessage(&msg, "")
+			if !isError {
+				session.MarkMessage(&msg, "")
+			}
 		}
 		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
 	}()

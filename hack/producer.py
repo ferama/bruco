@@ -4,7 +4,7 @@ import time
 
 kafka_broker = "localhost:9092"
 topic = "test"
-num_partitions = 2
+num_partitions = 1
 
 admin_client = KafkaAdminClient(
         bootstrap_servers = kafka_broker, 

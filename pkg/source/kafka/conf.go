@@ -1,7 +1,7 @@
 package kafkasource
 
 type KafkaSourceConf struct {
-	AsyncHandler bool `yaml:"asyncHandler"`
+	FireAndForget bool `yaml:"fireAndForget"`
 
 	BalanceStrategy string   `yaml:"balanceStrategy"`
 	Brokers         []string `yaml:"brokers"`
@@ -10,6 +10,6 @@ type KafkaSourceConf struct {
 	Offset          string   `yaml:"offset"`
 }
 
-func (c *KafkaSourceConf) IsAsyncHandler() bool {
-	return c.AsyncHandler
+func (c *KafkaSourceConf) IsFireAndForget() bool {
+	return c.FireAndForget
 }

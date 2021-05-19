@@ -6,8 +6,5 @@ def handle_event(context, data):
     return data.decode() +  " test"
 
 def init_context(context):
-    import os
-    for k, v in os.environ.items():
-        print(f"{k}={v}")
     context.logger.info("init context")
     setattr(context, "test", "test value")
