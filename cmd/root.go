@@ -33,8 +33,11 @@ func getEventCallback(eventSink sink.Sink) processor.EventCallback {
 			Key:   response.Key,
 			Value: []byte(response.Data),
 		}
-		eventSink.Publish(msg)
-		return nil
+		err := eventSink.Publish(msg)
+		if err != nil {
+			log.Printf("[ROOT] publish error: %s", err)
+		}
+		return err
 	}
 }
 

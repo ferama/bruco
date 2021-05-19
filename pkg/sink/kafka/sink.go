@@ -77,7 +77,7 @@ func (s *KafkaSink) resolvePartitioner(cfg *KafkaSinkConf) func(string) sarama.P
 }
 
 // Publish send a message through the sink
-func (s *KafkaSink) Publish(msg *sink.Message) {
+func (s *KafkaSink) Publish(msg *sink.Message) error {
 	// log.Printf("Publishing: %s %s", msg.Key, msg.Value)
 	message := &sarama.ProducerMessage{
 		Topic:     s.topic,
@@ -87,5 +87,6 @@ func (s *KafkaSink) Publish(msg *sink.Message) {
 		message.Key = sarama.StringEncoder(msg.Key)
 	}
 	message.Value = sarama.ByteEncoder(msg.Value)
-	s.producer.SendMessage(message)
+	_, _, err := s.producer.SendMessage(message)
+	return err
 }

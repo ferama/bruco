@@ -4,5 +4,5 @@ package sink
 // sink
 type Sink interface {
 	// Publish publishes a message to the sink
-	Publish(msg *Message)
+	Publish(msg *Message) error
 }
