@@ -29,7 +29,7 @@ func GetEventSource(cfg *conf.Config) (source.Source, source.SourceConf) {
 		eventSource = kafkasource.NewKafkaSource(conf)
 		return eventSource, conf
 	default:
-		log.Fatalf("Invalid source kind: %s", sourceKind)
+		log.Fatalf("[ROOT] invalid source kind: %s", sourceKind)
 		return nil, nil
 	}
 }
@@ -44,7 +44,7 @@ func GetEventSink(cfg *conf.Config) (sink.Sink, sink.SinkConf) {
 		eventSink = kafkasink.NewKafkaSink(conf)
 		return eventSink, conf
 	default:
-		log.Fatalf("Invalid sink kind: %s", sinkKind)
+		log.Printf("[ROOT] sink kind: %s", sinkKind)
 		return nil, nil
 	}
 }

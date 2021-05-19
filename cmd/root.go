@@ -17,6 +17,12 @@ import (
 
 func getEventCallback(eventSink sink.Sink) processor.EventCallback {
 	return func(response *processor.Response) error {
+		if eventSink == nil {
+			if response.Data != "" {
+				log.Println("[ROOT] WARNING: processor has a return value but no sink is configured")
+			}
+			return nil
+		}
 		if response.Error != "" {
 			return errors.New(response.Error)
 		}

@@ -23,6 +23,7 @@ source:
   # messages handling order between same partition
   fireAndForget: true
 
+# OPTIONAL: you can have a source and a processor without a sink
 sink:
   kind: kafka
   brokers:
