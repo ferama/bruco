@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -21,10 +22,18 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 
 	config := sarama.NewConfig()
 	config.ClientID = "bruco"
+	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.AutoCommit.Enable = true
+	config.Consumer.MaxProcessingTime = time.Hour * 24
+	rebalanceTimeout := 60
+	if kconf.RebalanceTimeout != 0 {
+		rebalanceTimeout = kconf.RebalanceTimeout
+	}
+	config.Consumer.Group.Rebalance.Timeout = time.Second * time.Duration(rebalanceTimeout)
+	// log.Printf("rebalance timeout %d", config.Consumer.Group.Rebalance.Timeout)
+
 	config.Consumer.Offsets.Initial = kafkaSource.resolveOffset(kconf.Offset)
-	balanceStrategy := kafkaSource.resolveBalanceStrategy(kconf.BalanceStrategy)
-	config.Consumer.Group.Rebalance.Strategy = balanceStrategy
+	config.Consumer.Group.Rebalance.Strategy = kafkaSource.resolveBalanceStrategy(kconf.BalanceStrategy)
 
 	consumerGroup, err := sarama.NewConsumerGroup(kconf.Brokers, kconf.ConsumerGroup, config)
 	if err != nil {
@@ -92,13 +101,17 @@ func (k *KafkaSource) Setup(session sarama.ConsumerGroupSession) error {
 
 // Cleanup is run at the end of a session, once all ConsumeClaim goroutines have exited
 func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
+	// log.Println("[KAFKA-SOURCE] cleanup")
 	return nil
 }
 
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	claimedMessage := make(chan sarama.ConsumerMessage)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		log.Printf("[KAFKA-SOURCE] starting message handler for partition %d", claim.Partition())
 		for msg := range claimedMessage {
 			if k.messageHandler != nil {
 				outMsg := &source.Message{
@@ -119,6 +132,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 			}
 		}
 		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
+		wg.Done()
 	}()
 
 	// NOTE:
@@ -126,12 +140,13 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	// The `ConsumeClaim` itself is called within a goroutine, see:
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
-		// lag := claim.HighWaterMarkOffset() - message.Offset
-		// log.Printf("### partition: %d lag: %d", claim.Partition(), lag)
-		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
 		claimedMessage <- *message
+		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
+		// log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
 	}
-
+	log.Printf("[KAFKA-SOURCE] ending consumer session for partition %d", claim.Partition())
 	close(claimedMessage)
+	// wait until the message handler coroutine has stopped
+	wg.Wait()
 	return nil
 }

@@ -4,7 +4,7 @@ import time
 
 kafka_broker = "localhost:9092"
 topic = "test"
-num_partitions = 1
+num_partitions = 4
 
 admin_client = KafkaAdminClient(
         bootstrap_servers = kafka_broker, 
@@ -29,4 +29,4 @@ while True:
     partition = i % num_partitions
     producer.send(topic, partition=partition, value=str(i).encode('utf-8'))
     print(f"Sent {i} on partition {partition}")
-    time.sleep(1)
+    time.sleep(10)

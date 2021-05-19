@@ -21,7 +21,11 @@ source:
   balanceStrategy: range # values: range, sticky, roundrobin
   # NOTE: the async version (fireAndForget=true) will not guarantee
   # messages handling order between same partition
-  fireAndForget: true
+  fireAndForget: false
+  # OPTIONAL: default 60
+  # Increase this one if you have slow consumers to prevent
+  # rebalance loop
+  rebalanceTimeout: 120
 
 # OPTIONAL: you can have a source and a processor without a sink
 sink:
