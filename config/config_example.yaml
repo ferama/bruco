@@ -26,7 +26,11 @@ source:
   # Increase this one if you have slow consumers to prevent
   # rebalance loop
   rebalanceTimeout: 120
-  sessionTimeout: 20
+  # OPTIONAL: default to 256. Put a low vaclue here in case of slow consumers
+  # to prevent rebalancing loop. It can be as low as 0
+  channelBufferSize: 256
+  # OPTIONAL: default 1024 * 1024. Again for slow consumers you could keep this low
+  fetchDefaultBytes: 8
 
 # OPTIONAL: you can have a source and a processor without a sink
 sink:

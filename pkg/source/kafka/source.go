@@ -3,8 +3,8 @@ package kafkasource
 import (
 	"context"
 	"log"
+	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -24,17 +24,34 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 	config.ClientID = "bruco"
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.AutoCommit.Enable = true
+
+	channelBufferSize := 256
+	if kconf.ChannelBufferSize != "" {
+		var err error
+		channelBufferSize, err = strconv.Atoi(kconf.ChannelBufferSize)
+		if err != nil {
+			log.Fatalf("[KAFKA-SOURCE] invalid channelBufferSize conf %s", kconf.ChannelBufferSize)
+		}
+	}
+	config.ChannelBufferSize = channelBufferSize
+
+	fetchDefaultBytes := 1024 * 1024
+	if kconf.FetchDefaultBytes != "" {
+		var err error
+		fetchDefaultBytes, err = strconv.Atoi(kconf.FetchDefaultBytes)
+		if err != nil {
+			log.Fatalf("[KAFKA-SOURCE] invalid fetchDefaultBytes conf %s", kconf.FetchDefaultBytes)
+		}
+	}
+	config.Consumer.Fetch.Default = int32(fetchDefaultBytes)
+
 	config.Consumer.MaxProcessingTime = time.Hour * 24
+	// config.Version = sarama.V2_4_0_0
 	rebalanceTimeout := 60
 	if kconf.RebalanceTimeout != 0 {
 		rebalanceTimeout = kconf.RebalanceTimeout
 	}
 	config.Consumer.Group.Rebalance.Timeout = time.Second * time.Duration(rebalanceTimeout)
-	sessionTimeout := 10
-	if kconf.SessionTimeout != 0 {
-		sessionTimeout = kconf.SessionTimeout
-	}
-	config.Consumer.Group.Session.Timeout = time.Second * time.Duration(sessionTimeout)
 	// log.Printf("rebalance timeout %d", config.Consumer.Group.Rebalance.Timeout)
 
 	config.Consumer.Offsets.Initial = kafkaSource.resolveOffset(kconf.Offset)
@@ -113,10 +130,10 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	claimedMessage := make(chan sarama.ConsumerMessage)
-	var wg sync.WaitGroup
-	wg.Add(1)
+	// var wg sync.WaitGroup
+	// wg.Add(1)
 	go func() {
-		log.Printf("[KAFKA-SOURCE] starting message handler for partition %d", claim.Partition())
+		// log.Printf("[KAFKA-SOURCE] starting message handler for partition %d", claim.Partition())
 		for msg := range claimedMessage {
 			if k.messageHandler != nil {
 				outMsg := &source.Message{
@@ -136,8 +153,8 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 				k.messageHandler(outMsg, resolveChan)
 			}
 		}
-		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
-		wg.Done()
+		// log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
+		// wg.Done()
 	}()
 
 	// NOTE:
@@ -146,12 +163,13 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
 		claimedMessage <- *message
+		// time.Sleep(time.Second * 12)
 		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
-		// log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
+		log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
 	}
 	log.Printf("[KAFKA-SOURCE] ending consumer session for partition %d", claim.Partition())
 	close(claimedMessage)
 	// wait until the message handler coroutine has stopped
-	wg.Wait()
+	// wg.Wait()
 	return nil
 }
