@@ -72,6 +72,7 @@ func (p *Python) handleOutput() {
 			p.available <- p
 		}
 		if rerr != nil {
+			log.Fatalf("[PYTHON] error %s", rerr)
 			return
 		}
 

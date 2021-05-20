@@ -154,7 +154,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 				k.messageHandler(outMsg, resolveChan)
 			}
 		}
-		// log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
+		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
 		// wg.Done()
 	}()
 

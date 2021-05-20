@@ -13,6 +13,8 @@ type channel struct {
 	Port      int
 	listener  net.Listener
 	connected sync.WaitGroup
+
+	rmu sync.Mutex
 }
 
 func newChannel() (*channel, error) {
@@ -29,15 +31,12 @@ func newChannel() (*channel, error) {
 		Port:     port,
 	}
 	c.connected.Add(1)
-	go c.listen(true)
+	go c.listen()
 
 	return c, nil
 }
 
-func (c *channel) listen(onNewChannel bool) {
-	if !onNewChannel {
-		c.connected.Add(1)
-	}
+func (c *channel) listen() {
 	conn, err := c.listener.Accept()
 	if err != nil {
 		log.Fatalln(err)
@@ -51,9 +50,13 @@ func (c *channel) listen(onNewChannel bool) {
 
 func (c *channel) Write(data []byte) error {
 	c.connected.Wait()
+	// prevents concurrent writes (short write error)
+	c.rmu.Lock()
+	defer c.rmu.Unlock()
+
 	_, err := c.writer.Write(data)
 	if err != nil {
-		c.listen(false)
+		log.Printf("channel write error: %s", err)
 		return err
 	}
 	c.writer.Flush()
@@ -64,7 +67,7 @@ func (c *channel) Read() ([]byte, error) {
 	c.connected.Wait()
 	out, err := c.reader.ReadBytes('\n')
 	if err != nil {
-		c.listen(false)
+		log.Printf("channel read error: %s", err)
 		return nil, err
 	}
 	return out, err
