@@ -123,6 +123,7 @@ func (k *KafkaSource) Setup(session sarama.ConsumerGroupSession) error {
 
 // Cleanup is run at the end of a session, once all ConsumeClaim goroutines have exited
 func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
+	log.Printf("[KAFKA-SOURCE] ending consumer session. claims %v", session.Claims())
 	// log.Println("[KAFKA-SOURCE] cleanup")
 	return nil
 }
@@ -163,11 +164,9 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
 	for message := range claim.Messages() {
 		claimedMessage <- *message
-		// time.Sleep(time.Second * 12)
 		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
 		log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
 	}
-	log.Printf("[KAFKA-SOURCE] ending consumer session for partition %d", claim.Partition())
 	close(claimedMessage)
 	// wait until the message handler coroutine has stopped
 	// wg.Wait()

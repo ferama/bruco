@@ -29,4 +29,4 @@ while True:
     partition = i % num_partitions
     producer.send(topic, partition=partition, value=str(i).encode('utf-8'))
     print(f"Sent {i} on partition {partition}")
-    time.sleep(5)
+    # time.sleep(0.01)
