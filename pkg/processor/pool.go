@@ -72,11 +72,8 @@ func (p *Pool) HandleEventAsync(data []byte, callback EventCallback) error {
 }
 
 func (p *Pool) HandleEvent(data []byte) (*Response, error) {
-	// log.Printf("msg: %s", string(data))
 	python := <-p.availableWorkers
-	// log.Println("step1")
 	err := python.handleEvent(data)
-	// log.Println("step2")
 	if err != nil {
 		return nil, err
 	}

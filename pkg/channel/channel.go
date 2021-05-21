@@ -2,7 +2,7 @@ package channel
 
 import (
 	"bufio"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -23,8 +23,16 @@ type Channel struct {
 }
 
 // NewChannel builds a Channel object
-func NewChannel(name string) (*Channel, error) {
-	socketPath := fmt.Sprintf("%sbruco-%s-channel.socket", os.TempDir(), name)
+func NewChannel() (*Channel, error) {
+	tmpFile, err := ioutil.TempFile("", "bruco-channel-socket-")
+	if err != nil {
+		log.Fatal("tmp file error ", err)
+		return nil, err
+	}
+	socketPath := tmpFile.Name()
+	tmpFile.Close()
+	os.Remove(tmpFile.Name())
+
 	listener, err := net.Listen("unix", socketPath)
 	if err != nil {
 		log.Fatal("dial error ", err)

@@ -131,8 +131,6 @@ func (k *KafkaSource) Cleanup(session sarama.ConsumerGroupSession) error {
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	claimedMessage := make(chan sarama.ConsumerMessage)
-	// var wg sync.WaitGroup
-	// wg.Add(1)
 	go func() {
 		// log.Printf("[KAFKA-SOURCE] starting message handler for partition %d", claim.Partition())
 		for msg := range claimedMessage {
@@ -155,20 +153,30 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 			}
 		}
 		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
-		// wg.Done()
 	}()
 
-	// NOTE:
-	// Do not move the code below to a goroutine.
-	// The `ConsumeClaim` itself is called within a goroutine, see:
-	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
-	for message := range claim.Messages() {
-		claimedMessage <- *message
-		// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
-		log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
+	// // NOTE:
+	// // Do not move the code below to a goroutine.
+	// // The `ConsumeClaim` itself is called within a goroutine, see:
+	// // https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
+	// for message := range claim.Messages() {
+	// 	claimedMessage <- *message
+	// 	// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
+	// 	log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
+	// }
+
+	for {
+		select {
+		case message := <-claim.Messages():
+			claimedMessage <- *message
+			// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
+			log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
+		case <-session.Context().Done():
+			close(claimedMessage)
+			return nil
+		}
 	}
-	close(claimedMessage)
-	// wait until the message handler coroutine has stopped
-	// wg.Wait()
-	return nil
+
+	// close(claimedMessage)
+	// return nil
 }
