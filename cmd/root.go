@@ -78,6 +78,8 @@ var rootCmd = &cobra.Command{
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		<-c
+		// cleanup
+		workers.Destroy()
 	},
 }
 

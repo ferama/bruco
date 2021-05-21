@@ -1,34 +1,39 @@
-package processor
+package channel
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net"
+	"os"
 	"sync"
 )
 
-type channel struct {
+// Channel is a unix socket server wrapper object. It provides a buffered
+// abstraction on top of a socket connection.
+type Channel struct {
+	SocketPath string
+
 	reader    *bufio.Reader
 	writer    *bufio.Writer
-	Port      int
 	listener  net.Listener
 	connected sync.WaitGroup
 
 	rmu sync.Mutex
 }
 
-func newChannel() (*channel, error) {
-	listener, err := net.Listen("tcp", ":0")
+// NewChannel builds a Channel object
+func NewChannel(name string) (*Channel, error) {
+	socketPath := fmt.Sprintf("%sbruco-%s-channel.socket", os.TempDir(), name)
+	listener, err := net.Listen("unix", socketPath)
 	if err != nil {
 		log.Fatal("dial error ", err)
 		return nil, err
 	}
-	port := listener.Addr().(*net.TCPAddr).Port
-	// log.Printf("listening on port %d", port)
 
-	c := &channel{
-		listener: listener,
-		Port:     port,
+	c := &Channel{
+		listener:   listener,
+		SocketPath: socketPath,
 	}
 	c.connected.Add(1)
 	go c.listen()
@@ -36,19 +41,19 @@ func newChannel() (*channel, error) {
 	return c, nil
 }
 
-func (c *channel) listen() {
+func (c *Channel) listen() {
 	conn, err := c.listener.Accept()
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
-	// log.Printf("client connected: %s", conn.RemoteAddr())
 	c.reader = bufio.NewReader(conn)
 	c.writer = bufio.NewWriter(conn)
 	c.connected.Done()
 }
 
-func (c *channel) Write(data []byte) error {
+// Write writes data to the channel
+func (c *Channel) Write(data []byte) error {
 	c.connected.Wait()
 	// prevents concurrent writes (short write error)
 	c.rmu.Lock()
@@ -63,16 +68,18 @@ func (c *channel) Write(data []byte) error {
 	return nil
 }
 
-func (c *channel) Read() ([]byte, error) {
+// Read reads data from the channel
+func (c *Channel) Read() ([]byte, error) {
 	c.connected.Wait()
 	out, err := c.reader.ReadBytes('\n')
 	if err != nil {
-		log.Printf("channel read error: %s", err)
+		// log.Printf("channel read error: %s", err)
 		return nil, err
 	}
 	return out, err
 }
 
-func (c *channel) Close() {
+// Close close the channel
+func (c *Channel) Close() {
 	c.listener.Close()
 }

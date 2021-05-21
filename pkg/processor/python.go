@@ -6,12 +6,14 @@ import (
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/ferama/bruco/pkg/channel"
 )
 
 // Python class
 type Python struct {
 	cmd *exec.Cmd
-	ch  *channel
+	ch  *channel.Channel
 
 	name          string
 	available     chan *Python
@@ -21,14 +23,15 @@ type Python struct {
 // NewPython creates a python instance
 func NewPython(name string, availableWorkers chan *Python,
 	wrapperPath string, workdir string, moduleName string, env map[string]string) *Python {
-	ch, _ := newChannel()
+	ch, _ := channel.NewChannel(name)
 
 	pythonPath := "python3"
 
 	args := []string{
 		pythonPath, "-u", wrapperPath,
 		"--workdir", workdir,
-		"--port", fmt.Sprintf("%d", ch.Port),
+		// "--port", fmt.Sprintf("%d", ch.Port),
+		"--socket", ch.SocketPath,
 		"--worker-name", name,
 		"--module-name", moduleName,
 	}
@@ -72,7 +75,7 @@ func (p *Python) handleOutput() {
 			p.available <- p
 		}
 		if rerr != nil {
-			log.Fatalf("[PYTHON] error %s", rerr)
+			// log.Fatalf("[PYTHON] error %s", rerr)
 			return
 		}
 

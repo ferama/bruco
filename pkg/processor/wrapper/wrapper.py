@@ -28,8 +28,9 @@ class Context:
 
 
 class Wrapper:
-    def __init__(self, workdir: str, module_name: str, port: int, worker_name: str):
-        self.port = port
+    def __init__(self, workdir: str, module_name: str, socket: str, worker_name: str):
+        # self.port = port
+        self.socketPath = socket
         self.worker_name = worker_name
         self.module_name = module_name
 
@@ -47,8 +48,8 @@ class Wrapper:
         if hasattr(module, "init_context"):
             module.init_context(context)
 
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect((socket.gethostname(), self.port))
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        client.connect(self.socketPath)
         while True:
             msg = client.recv(1024 * 1024 * 100)
             try:
@@ -92,11 +93,16 @@ if __name__ == "__main__":
                             metavar="module_name", 
                             type=str, 
                             help="the module name")
-    parser.add_argument("--port", 
+    # parser.add_argument("--port", 
+    #                         required=True,
+    #                         metavar="port", 
+    #                         type=int, 
+    #                         help="the processor port")
+    parser.add_argument("--socket", 
                             required=True,
-                            metavar="port", 
-                            type=int, 
-                            help="the processor port")
+                            metavar="socket", 
+                            type=str, 
+                            help="the processor socket path")
     parser.add_argument("--worker-name", 
                             required=True,
                             metavar="worker_name", 
@@ -106,6 +112,7 @@ if __name__ == "__main__":
     w = Wrapper(
             args.workdir, 
             args.module_name,
-            args.port, 
+            # args.port, 
+            args.socket,
             args.worker_name)
     w.start()
