@@ -13,11 +13,9 @@ import (
 )
 
 type Config struct {
-	LambdaPath string                 `yaml:"lambdaPath"`
-	Workers    int                    `yaml:"workers"`
-	Processor  map[string]interface{} `yaml:"processor"`
-	Source     map[string]interface{} `yaml:"source"`
-	Sink       map[string]interface{} `yaml:"sink"`
+	Processor map[string]interface{} `yaml:"processor"`
+	Source    map[string]interface{} `yaml:"source"`
+	Sink      map[string]interface{} `yaml:"sink"`
 }
 
 // LoadConfig parses the [config].yaml file and loads its values
