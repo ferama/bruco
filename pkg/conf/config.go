@@ -1,14 +1,8 @@
 package conf
 
 import (
-	"log"
 	"os"
 
-	"github.com/ferama/bruco/pkg/processor"
-	"github.com/ferama/bruco/pkg/sink"
-	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
-	"github.com/ferama/bruco/pkg/source"
-	kafkasource "github.com/ferama/bruco/pkg/source/kafka"
 	"gopkg.in/yaml.v2"
 )
 
@@ -37,42 +31,4 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 
 	return &cfg, nil
-}
-
-// GerProcessorConf extract the processor configuration from yaml
-func (c *Config) GerProcessorConf() *processor.ProcessorConf {
-	m, _ := yaml.Marshal(c.Processor)
-	conf := &processor.ProcessorConf{}
-	yaml.Unmarshal(m, conf)
-	return conf
-}
-
-// GetSourceConf resoslve the source conf
-func (c *Config) GetSourceConf() source.SourceConf {
-	sourceKind := c.Source["kind"]
-	switch sourceKind {
-	case "kafka":
-		m, _ := yaml.Marshal(c.Source)
-		conf := &kafkasource.KafkaSourceConf{}
-		yaml.Unmarshal(m, conf)
-		return conf
-	default:
-		log.Fatalf("Invalid source kind: %s", sourceKind)
-		return nil
-	}
-}
-
-// GetSinkConf resolve the sink conf
-func (c *Config) GetSinkConf() sink.SinkConf {
-	sinkKind := c.Sink["kind"]
-	switch sinkKind {
-	case "kafka":
-		m, _ := yaml.Marshal(c.Sink)
-		conf := &kafkasink.KafkaSinkConf{}
-		yaml.Unmarshal(m, conf)
-		return conf
-	default:
-		log.Fatalf("Invalid sink kind: %s", sinkKind)
-		return nil
-	}
 }

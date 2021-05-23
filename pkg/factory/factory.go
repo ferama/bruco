@@ -1,4 +1,4 @@
-package rootcmd
+package factory
 
 import (
 	"log"
@@ -12,20 +12,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func GerProcessorConf(cfg *conf.Config) *processor.ProcessorConf {
-	m, _ := yaml.Marshal(cfg.Processor)
-	conf := &processor.ProcessorConf{}
-	yaml.Unmarshal(m, conf)
-	return conf
-}
-
-func GetEventSource(cfg *conf.Config) (source.Source, source.SourceConf) {
+// GetSourceInstance builds up a source instance
+func GetSourceInstance(cfg *conf.Config) (source.Source, source.SourceConf) {
 	var eventSource source.Source
 
 	sourceKind := cfg.Source["kind"]
 	switch sourceKind {
 	case "kafka":
-		conf := cfg.GetSourceConf().(*kafkasource.KafkaSourceConf)
+		m, _ := yaml.Marshal(cfg.Source)
+		conf := &kafkasource.KafkaSourceConf{}
+		yaml.Unmarshal(m, conf)
 		eventSource = kafkasource.NewKafkaSource(conf)
 		return eventSource, conf
 	default:
@@ -34,17 +30,28 @@ func GetEventSource(cfg *conf.Config) (source.Source, source.SourceConf) {
 	}
 }
 
-func GetEventSink(cfg *conf.Config) (sink.Sink, sink.SinkConf) {
+// GetSinkInstance builds up a sink instance
+func GetSinkInstance(cfg *conf.Config) (sink.Sink, sink.SinkConf) {
 	var eventSink sink.Sink
 
 	sinkKind := cfg.Sink["kind"]
 	switch sinkKind {
 	case "kafka":
-		conf := cfg.GetSinkConf().(*kafkasink.KafkaSinkConf)
+		m, _ := yaml.Marshal(cfg.Sink)
+		conf := &kafkasink.KafkaSinkConf{}
+		yaml.Unmarshal(m, conf)
 		eventSink = kafkasink.NewKafkaSink(conf)
 		return eventSink, conf
 	default:
 		log.Printf("[ROOT] sink kind: %s", sinkKind)
 		return nil, nil
 	}
+}
+
+// GetProcessorWorkerPool build up a processor worker pool
+func GetProcessorWorkerPool(cfg *conf.Config) *processor.Pool {
+	m, _ := yaml.Marshal(cfg.Processor)
+	conf := &processor.ProcessorConf{}
+	yaml.Unmarshal(m, conf)
+	return processor.NewPool(conf)
 }

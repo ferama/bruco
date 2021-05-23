@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	rootcmd "github.com/ferama/bruco/cmd/root"
 	"github.com/ferama/bruco/pkg/conf"
+	"github.com/ferama/bruco/pkg/factory"
 	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/sink"
 	"github.com/ferama/bruco/pkg/source"
@@ -54,11 +54,11 @@ var rootCmd = &cobra.Command{
 			panic(err)
 		}
 
-		eventSource, sourceConf := rootcmd.GetEventSource(cfg)
-		eventSink, _ := rootcmd.GetEventSink(cfg)
+		eventSource, sourceConf := factory.GetSourceInstance(cfg)
+		eventSink, _ := factory.GetSinkInstance(cfg)
 		asyncHandler := sourceConf.IsFireAndForget()
 
-		workers := processor.NewPool(cfg.GerProcessorConf())
+		workers := factory.GetProcessorWorkerPool(cfg)
 
 		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan error) {
 			if asyncHandler {
