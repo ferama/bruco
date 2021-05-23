@@ -22,7 +22,7 @@ type Python struct {
 
 // NewPython creates a python instance
 func NewPython(name string, availableWorkers chan *Python,
-	wrapperPath string, workdir string, moduleName string, env map[string]string) *Python {
+	wrapperPath string, workdir string, moduleName string, env []EnvVar) *Python {
 	ch, _ := channel.NewChannel()
 
 	pythonPath := "python3"
@@ -39,8 +39,8 @@ func NewPython(name string, availableWorkers chan *Python,
 
 	// builds command environment
 	cmd.Env = os.Environ()
-	for k, v := range env {
-		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
+	for _, e := range env {
+		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", e.Name, e.Value))
 	}
 
 	cmd.Stdout = os.Stdout

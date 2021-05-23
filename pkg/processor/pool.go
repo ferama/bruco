@@ -15,7 +15,8 @@ type Pool struct {
 	wrapperPath string
 	workDir     string
 	moduleName  string
-	env         map[string]string
+	env         []EnvVar
+	// env         map[string]string
 
 	availableWorkers chan *Python
 }
@@ -78,7 +79,6 @@ func (p *Pool) HandleEvent(data []byte) (*Response, error) {
 		return nil, err
 	}
 	response := <-python.eventResponse
-	// log.Println("step3")
 	return &response, nil
 }
 
