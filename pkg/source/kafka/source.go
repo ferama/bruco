@@ -12,13 +12,11 @@ import (
 )
 
 type KafkaSource struct {
-	messageHandler source.MessageHandler
+	source.SourceBase
 }
 
 func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
-	kafkaSource := &KafkaSource{
-		messageHandler: nil,
-	}
+	kafkaSource := &KafkaSource{}
 
 	config := sarama.NewConfig()
 	config.ClientID = "bruco"
@@ -77,12 +75,6 @@ func NewKafkaSource(kconf *KafkaSourceConf) *KafkaSource {
 	return kafkaSource
 }
 
-// SetMessageHandler sets the callback function that will be invoked on each
-// message received from the kafka source
-func (k *KafkaSource) SetMessageHandler(handler source.MessageHandler) {
-	k.messageHandler = handler
-}
-
 func (k *KafkaSource) resolveOffset(offset string) int64 {
 	if offset == "" {
 		return sarama.OffsetNewest
@@ -134,7 +126,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 	go func() {
 		// log.Printf("[KAFKA-SOURCE] starting message handler for partition %d", claim.Partition())
 		for msg := range claimedMessage {
-			if k.messageHandler != nil {
+			if k.MessageHandler != nil {
 				outMsg := &source.Message{
 					Timestamp: msg.Timestamp,
 					Value:     msg.Value,
@@ -149,7 +141,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 					}
 					close(ch)
 				}(resolveChan)
-				k.messageHandler(outMsg, resolveChan)
+				k.MessageHandler(outMsg, resolveChan)
 			}
 		}
 		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())

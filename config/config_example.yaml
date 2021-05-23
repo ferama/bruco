@@ -4,8 +4,10 @@ processor:
   moduleName: handler
   workers: 3
   env:
-    VAR1: var1-value
-    VAR2: var2-value
+    - name: VAR1
+      value: var1-value
+    - name: VAR2
+      value: var2-value
 
 source:
   kind: kafka

@@ -1,5 +1,6 @@
 package kafkasource
 
+// KafkaSourceConf holds the kafka source configuration
 type KafkaSourceConf struct {
 	FireAndForget bool `yaml:"fireAndForget"`
 

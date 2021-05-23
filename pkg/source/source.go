@@ -11,3 +11,13 @@ type Source interface {
 	// message received from the kafka source
 	SetMessageHandler(handler MessageHandler)
 }
+
+type SourceBase struct {
+	MessageHandler MessageHandler
+}
+
+// SetMessageHandler sets the callback function that will be invoked on each
+// message received
+func (s *SourceBase) SetMessageHandler(handler MessageHandler) {
+	s.MessageHandler = handler
+}
