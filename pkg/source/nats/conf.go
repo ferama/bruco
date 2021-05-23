@@ -1,9 +1,9 @@
 package nats
 
-type NatsSourceConf struct {
-	ServerUrl string `yaml:"serverUrl"`
-}
+import "github.com/ferama/bruco/pkg/source"
 
-func (c *NatsSourceConf) IsFireAndForget() bool {
-	return true
+type NatsSourceConf struct {
+	source.SourceConfBase
+
+	ServerUrl string `yaml:"serverUrl"`
 }

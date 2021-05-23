@@ -1,8 +1,10 @@
 package kafkasource
 
+import "github.com/ferama/bruco/pkg/source"
+
 // KafkaSourceConf holds the kafka source configuration
 type KafkaSourceConf struct {
-	FireAndForget bool `yaml:"fireAndForget"`
+	source.SourceConfBase
 
 	FetchDefaultBytes string   `yaml:"fetchDefaultBytes"`
 	ChannelBufferSize string   `yaml:"channelBufferSize"`
@@ -12,8 +14,4 @@ type KafkaSourceConf struct {
 	Topics            []string `yaml:"topics"`
 	ConsumerGroup     string   `yaml:"consumerGroup"`
 	Offset            string   `yaml:"offset"`
-}
-
-func (c *KafkaSourceConf) IsFireAndForget() bool {
-	return c.FireAndForget
 }

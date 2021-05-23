@@ -6,3 +6,11 @@ type SourceConf interface {
 	// handles the source message should be async or not
 	IsFireAndForget() bool
 }
+
+type SourceConfBase struct {
+	FireAndForget bool `yaml:"fireAndForget"`
+}
+
+func (s *SourceConfBase) IsFireAndForget() bool {
+	return s.FireAndForget
+}
