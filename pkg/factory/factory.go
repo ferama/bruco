@@ -9,6 +9,7 @@ import (
 	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
 	"github.com/ferama/bruco/pkg/source"
 	kafkasource "github.com/ferama/bruco/pkg/source/kafka"
+	natssource "github.com/ferama/bruco/pkg/source/nats"
 	"gopkg.in/yaml.v2"
 )
 
@@ -23,6 +24,12 @@ func GetSourceInstance(cfg *conf.Config) (source.Source, source.SourceConf) {
 		conf := &kafkasource.KafkaSourceConf{}
 		yaml.Unmarshal(m, conf)
 		eventSource = kafkasource.NewKafkaSource(conf)
+		return eventSource, conf
+	case "nats":
+		m, _ := yaml.Marshal(cfg.Source)
+		conf := &natssource.NatsSourceConf{}
+		yaml.Unmarshal(m, conf)
+		eventSource = natssource.NewNatsSource(conf)
 		return eventSource, conf
 	default:
 		log.Fatalf("[ROOT] invalid source kind: %s", sourceKind)
