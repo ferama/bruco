@@ -60,19 +60,33 @@ func (p *Pool) resolveModuleName(name string) string {
 	return name
 }
 
-func (p *Pool) HandleEventAsync(data []byte, callback EventCallback) error {
+func (p *Pool) HandleEventAsync(data []byte, callback EventCallback) {
+	if len(data) == 0 {
+		// log.Println("[PROCESSOR] WARNING: got 0 len event")
+		res := Response{
+			Data:  "",
+			Error: "can't handle zero len event",
+		}
+		if callback != nil {
+			callback(&res)
+		}
+		return
+	}
 	python := <-p.availableWorkers
-	err := python.handleEvent(data)
+	python.handleEvent(data)
 	go func() {
 		response := <-python.eventResponse
 		if callback != nil {
 			callback(&response)
 		}
 	}()
-	return err
 }
 
 func (p *Pool) HandleEvent(data []byte) (*Response, error) {
+	if len(data) == 0 {
+		// log.Println("[PROCESSOR] WARNING: got 0 len event")
+		return nil, fmt.Errorf("can't handle zero len event")
+	}
 	python := <-p.availableWorkers
 	err := python.handleEvent(data)
 	if err != nil {

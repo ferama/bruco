@@ -17,15 +17,15 @@ import (
 
 func getEventCallback(eventSink sink.Sink, resolve chan error) processor.EventCallback {
 	return func(response *processor.Response) {
+		if response.Error != "" {
+			resolve <- errors.New(response.Error)
+			return
+		}
 		if eventSink == nil {
 			if response.Data != "" {
 				log.Println("[ROOT] WARNING: processor has a return value but no sink is configured")
 			}
 			resolve <- nil
-			return
-		}
-		if response.Error != "" {
-			resolve <- errors.New(response.Error)
 			return
 		}
 		if len(response.Data) == 0 {
@@ -61,10 +61,6 @@ var rootCmd = &cobra.Command{
 		workers := factory.GetProcessorWorkerPool(cfg)
 
 		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan error) {
-			if len(msg.Value) == 0 {
-				log.Println("[ROOT] WARNING: got 0 len event")
-				return
-			}
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
