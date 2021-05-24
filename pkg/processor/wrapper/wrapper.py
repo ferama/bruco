@@ -93,11 +93,6 @@ if __name__ == "__main__":
                             metavar="module_name", 
                             type=str, 
                             help="the module name")
-    # parser.add_argument("--port", 
-    #                         required=True,
-    #                         metavar="port", 
-    #                         type=int, 
-    #                         help="the processor port")
     parser.add_argument("--socket", 
                             required=True,
                             metavar="socket", 
@@ -112,7 +107,6 @@ if __name__ == "__main__":
     w = Wrapper(
             args.workdir, 
             args.module_name,
-            # args.port, 
             args.socket,
             args.worker_name)
     w.start()

@@ -1,0 +1,20 @@
+processor:
+  workDir: ./hack/examples/basic
+  moduleName: handler
+  workers: 4
+  env:
+    - name: VAR1
+      value: var1-value
+    - name: VAR2
+      value: var2-value
+
+source:
+  kind: nats
+  serverUrl: localhost:4222
+  queueGroup: test
+  subject: in.sub
+
+sink:
+  kind: nats
+  serverUrl: localhost:4222
+  subject: out.sub

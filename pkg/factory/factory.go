@@ -7,6 +7,7 @@ import (
 	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/sink"
 	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
+	natssink "github.com/ferama/bruco/pkg/sink/nats"
 	"github.com/ferama/bruco/pkg/source"
 	kafkasource "github.com/ferama/bruco/pkg/source/kafka"
 	natssource "github.com/ferama/bruco/pkg/source/nats"
@@ -49,8 +50,14 @@ func GetSinkInstance(cfg *conf.Config) (sink.Sink, sink.SinkConf) {
 		yaml.Unmarshal(m, conf)
 		eventSink = kafkasink.NewKafkaSink(conf)
 		return eventSink, conf
+	case "nats":
+		m, _ := yaml.Marshal(cfg.Sink)
+		conf := &natssink.NatsSinkConf{}
+		yaml.Unmarshal(m, conf)
+		eventSink = natssink.NewKNatsSink(conf)
+		return eventSink, conf
 	default:
-		log.Printf("[ROOT] sink kind: %s", sinkKind)
+		log.Fatalf("[ROOT] invalid sink kind: %s", sinkKind)
 		return nil, nil
 	}
 }
