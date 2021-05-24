@@ -74,13 +74,14 @@ func (p *Python) handleOutput() {
 			p.available <- p
 		}
 		if rerr != nil {
-			// log.Fatalf("[PYTHON] error %s", rerr)
+			// log.Printf("[PYTHON] error %s", rerr)
 			return
 		}
 
 		res := &Response{}
 		err := json.Unmarshal(out, res)
 		if err != nil {
+			log.Printf("[PYTHON] error %s", rerr)
 			return
 		}
 		p.eventResponse <- *res

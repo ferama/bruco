@@ -19,7 +19,7 @@ type Channel struct {
 	listener  net.Listener
 	connected sync.WaitGroup
 
-	rmu sync.Mutex
+	wmu sync.Mutex
 }
 
 // NewChannel builds a Channel object
@@ -64,14 +64,19 @@ func (c *Channel) listen() {
 func (c *Channel) Write(data []byte) error {
 	c.connected.Wait()
 	// prevents concurrent writes (short write error)
-	c.rmu.Lock()
-	defer c.rmu.Unlock()
+	c.wmu.Lock()
+	defer c.wmu.Unlock()
 
-	_, err := c.writer.Write(data)
+	l, err := c.writer.Write(data)
 	if err != nil {
 		log.Printf("channel write error: %s", err)
 		return err
 	}
+	if l != len(data) {
+		log.Printf("channel write error: %s", err)
+		return err
+	}
+
 	c.writer.Flush()
 	return nil
 }

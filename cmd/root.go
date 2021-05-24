@@ -61,6 +61,10 @@ var rootCmd = &cobra.Command{
 		workers := factory.GetProcessorWorkerPool(cfg)
 
 		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan error) {
+			if len(msg.Value) == 0 {
+				log.Println("[ROOT] WARNING: got 0 len event")
+				return
+			}
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition

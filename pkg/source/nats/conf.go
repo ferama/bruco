@@ -9,3 +9,7 @@ type NatsSourceConf struct {
 	QueueGroup string `yaml:"queueGroup"`
 	Subject    string `yaml:"subject"`
 }
+
+func (s *NatsSourceConf) IsFireAndForget() bool {
+	return true
+}
