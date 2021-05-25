@@ -1,5 +1,5 @@
 processor:
-  workDir: ./hack/examples/basic
+  handlerURL: local://./hack/examples/basic
   moduleName: handler
   workers: 4
   env:

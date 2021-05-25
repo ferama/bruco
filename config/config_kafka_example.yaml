@@ -1,5 +1,5 @@
 processor:
-  workDir: "./hack/examples/lambda"
+  handlerURL: local://./hack/examples/basic
   # OPTIONAL: defult handler
   moduleName: handler
   workers: 3
