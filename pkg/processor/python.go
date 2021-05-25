@@ -22,14 +22,14 @@ type Python struct {
 
 // NewPython creates a python instance
 func NewPython(name string, availableWorkers chan *Python,
-	wrapperPath string, workdir string, moduleName string, env []EnvVar) *Python {
+	wrapperPath string, handlerPath string, moduleName string, env []EnvVar) *Python {
 	ch, _ := channel.NewChannel()
 
 	pythonPath := "python3"
 
 	args := []string{
 		pythonPath, "-u", wrapperPath,
-		"--workdir", workdir,
+		"--handler-path", handlerPath,
 		"--socket", ch.SocketPath,
 		"--worker-name", name,
 		"--module-name", moduleName,

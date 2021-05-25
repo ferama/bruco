@@ -15,10 +15,10 @@ type EventCallback func(event *Response)
 type Pool struct {
 	pythonMap   map[string]*Python
 	wrapperPath string
-	workDir     string
+	handlerPath string
 	moduleName  string
 	env         []EnvVar
-	// env         map[string]string
+	loader      *loader.Loader
 
 	availableWorkers chan *Python
 }
@@ -48,8 +48,9 @@ func NewPool(cfg *ProcessorConf) *Pool {
 		pythonMap:        make(map[string]*Python),
 		availableWorkers: make(chan *Python, cfg.Workers),
 		wrapperPath:      file.Name(),
-		workDir:          path,
+		handlerPath:      path,
 		env:              cfg.Env,
+		loader:           loader,
 	}
 	pool.moduleName = pool.resolveModuleName(cfg.ModuleName)
 	for i := 0; i < cfg.Workers; i++ {
@@ -109,7 +110,7 @@ func (p *Pool) createPythonInstance(name string) *Python {
 	python := NewPython(name,
 		p.availableWorkers,
 		p.wrapperPath,
-		p.workDir,
+		p.handlerPath,
 		p.moduleName,
 		p.env,
 	)
@@ -127,4 +128,5 @@ func (p *Pool) Destroy() {
 		delete(p.pythonMap, key)
 	}
 	os.Remove(p.wrapperPath)
+	p.loader.Cleanup()
 }

@@ -1,4 +1,5 @@
 import os
+import pathlib
 import sys
 import json
 import importlib
@@ -28,15 +29,20 @@ class Context:
 
 
 class Wrapper:
-    def __init__(self, workdir: str, module_name: str, socket: str, worker_name: str):
-        # self.port = port
+    def __init__(self, handler_path: str, module_name: str, socket: str, worker_name: str):
         self.socketPath = socket
         self.worker_name = worker_name
-        self.module_name = module_name
 
-        os.chdir(workdir)
-        sys.path.append(".")
-        
+        path = pathlib.Path(handler_path)
+        if path.is_dir():
+            os.chdir(handler_path)
+            sys.path.append(".")
+            self.module_name = module_name
+        else:
+            # parse py handlers like /tmp/bruco-71236z-handler.py
+            os.chdir(path.parent)
+            self.module_name = path.name.replace(path.suffix, "")
+            
         signal.signal(signal.SIGINT, self.sigint_handler)
 
     def sigint_handler(self, p1, p2):
@@ -83,11 +89,11 @@ class Wrapper:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="the python shell")
-    parser.add_argument("--workdir", 
+    parser.add_argument("--handler-path", 
                             required=True,
-                            metavar="workdir", 
+                            metavar="handler_path", 
                             type=str, 
-                            help="the working directory")
+                            help="the function directory")
     parser.add_argument("--module-name", 
                             required=True,
                             metavar="module_name", 
@@ -105,7 +111,7 @@ if __name__ == "__main__":
                             help="the worker name")
     args = parser.parse_args()
     w = Wrapper(
-            args.workdir, 
+            args.handler_path, 
             args.module_name,
             args.socket,
             args.worker_name)
