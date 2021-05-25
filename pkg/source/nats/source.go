@@ -25,7 +25,7 @@ func NewNatsSource(cfg *NatsSourceConf) *NatsSource {
 	}
 	nc, err := nats.Connect(cfg.ServerUrl)
 	if err != nil {
-		log.Printf("[NATS-SOURCE] unable to connect to the server: %s", err)
+		log.Fatalf("[NATS-SOURCE] unable to connect to the server: %s", err)
 	}
 	source.conn = nc
 	nc.ChanQueueSubscribe(source.subject, source.queueGroup, source.msgCh)

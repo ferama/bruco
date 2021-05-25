@@ -16,6 +16,7 @@ type Loader struct {
 	rawUrl string
 
 	archiveFilePath string
+	archive         *archive
 }
 
 // NewLoader creates a new Loader object
@@ -41,8 +42,6 @@ func (l *Loader) Load() (string, error) {
 		path = fmt.Sprintf("%s%s", parsed.Host, parsed.Path)
 	case "http", "https":
 		path, err = l.loadFromHttp()
-		// log.Println(p)
-		// path = "./hack/examples/basic"
 	default:
 		return "", fmt.Errorf("unsupported scheme: %s", parsed.Scheme)
 	}
@@ -81,10 +80,11 @@ func (l *Loader) loadFromHttp() (string, error) {
 		return "", fmt.Errorf("can't store file %s", err)
 	}
 
-	archive := newArchive(file.Name())
-	return archive.getHandlerPath()
+	l.archive = newArchive(file.Name())
+	return l.archive.getHandlerPath()
 }
 
 func (l *Loader) Cleanup() {
 	os.Remove(l.archiveFilePath)
+	l.archive.cleanup()
 }
