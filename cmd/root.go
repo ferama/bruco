@@ -57,6 +57,11 @@ var rootCmd = &cobra.Command{
 		eventSource := factory.GetSourceInstance(cfg)
 		eventSink := factory.GetSinkInstance(cfg)
 		asyncHandler := cfg.Source.IsFireAndForget()
+		if asyncHandler {
+			log.Println("[ROOT] running in async mode")
+		} else {
+			log.Println("[ROOT] running in sync mode")
+		}
 
 		workers := factory.GetProcessorWorkerPool(cfg)
 

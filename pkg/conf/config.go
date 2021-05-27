@@ -42,6 +42,7 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 	config := &Config{}
 
+	// source
 	sourceKind := cfgFile.Source["kind"]
 	switch sourceKind {
 	case "kafka":
@@ -58,6 +59,7 @@ func LoadConfig(filePath string) (*Config, error) {
 		return nil, fmt.Errorf("invalid source kind: %s", sourceKind)
 	}
 
+	// sink
 	sinkKind := cfgFile.Sink["kind"]
 	switch sinkKind {
 	case "kafka":
@@ -74,6 +76,7 @@ func LoadConfig(filePath string) (*Config, error) {
 		return nil, fmt.Errorf("invalid sink kind: %s", sinkKind)
 	}
 
+	// processor
 	m, _ := yaml.Marshal(cfgFile.Processor)
 	c := &processor.ProcessorConf{}
 	yaml.Unmarshal(m, c)

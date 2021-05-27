@@ -26,7 +26,7 @@ func GetSourceInstance(cfg *conf.Config) source.Source {
 		eventSource = natssource.NewNatsSource(cfg.Source.(*natssource.NatsSourceConf))
 		return eventSource
 	default:
-		log.Fatalf("[ROOT] invalid source kind: %s", sourceKind)
+		log.Fatalf("invalid source kind: %s", sourceKind)
 		return nil
 	}
 }
@@ -44,7 +44,7 @@ func GetSinkInstance(cfg *conf.Config) sink.Sink {
 		eventSink = natssink.NewKNatsSink(cfg.Sink.(*natssink.NatsSinkConf))
 		return eventSink
 	default:
-		log.Fatalf("[ROOT] invalid sink kind: %s", sinkKind)
+		log.Fatalf("invalid sink kind: %s", sinkKind)
 		return nil
 	}
 }
