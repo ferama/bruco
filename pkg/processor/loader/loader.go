@@ -86,5 +86,7 @@ func (l *Loader) loadFromHttp() (string, error) {
 
 func (l *Loader) Cleanup() {
 	os.Remove(l.archiveFilePath)
-	l.archive.cleanup()
+	if l.archive != nil {
+		l.archive.cleanup()
+	}
 }

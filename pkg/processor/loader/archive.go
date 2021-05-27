@@ -18,7 +18,8 @@ type archive struct {
 
 func newArchive(path string) *archive {
 	a := &archive{
-		sourcePath: path,
+		sourcePath:  path,
+		toCleanPath: "",
 	}
 	return a
 }
@@ -45,7 +46,9 @@ func (a *archive) getHandlerPath() (string, error) {
 }
 
 func (a *archive) cleanup() {
-	os.RemoveAll(a.toCleanPath)
+	if a.toCleanPath != "" {
+		os.RemoveAll(a.toCleanPath)
+	}
 }
 
 func (a *archive) unzip(src string) (string, error) {
