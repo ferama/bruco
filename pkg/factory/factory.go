@@ -23,7 +23,7 @@ func GetSourceInstance(cfg *conf.Config) source.Source {
 		eventSource = kafkasource.NewKafkaSource(cfg.Source.(*kafkasource.KafkaSourceConf))
 		return eventSource
 	case "nats":
-		eventSource = natssource.NewNatsSource(cfg.Sink.(*natssource.NatsSourceConf))
+		eventSource = natssource.NewNatsSource(cfg.Source.(*natssource.NatsSourceConf))
 		return eventSource
 	default:
 		log.Fatalf("[ROOT] invalid source kind: %s", sourceKind)
