@@ -54,9 +54,9 @@ var rootCmd = &cobra.Command{
 			panic(err)
 		}
 
-		eventSource, sourceConf := factory.GetSourceInstance(cfg)
-		eventSink, _ := factory.GetSinkInstance(cfg)
-		asyncHandler := sourceConf.IsFireAndForget()
+		eventSource := factory.GetSourceInstance(cfg)
+		eventSink := factory.GetSinkInstance(cfg)
+		asyncHandler := cfg.Source.IsFireAndForget()
 
 		workers := factory.GetProcessorWorkerPool(cfg)
 

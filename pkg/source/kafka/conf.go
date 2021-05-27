@@ -4,7 +4,7 @@ import "github.com/ferama/bruco/pkg/source"
 
 // KafkaSourceConf holds the kafka source configuration
 type KafkaSourceConf struct {
-	source.SourceConfBase
+	source.SourceConfCommon `yaml:",inline"`
 
 	FetchDefaultBytes string   `yaml:"fetchDefaultBytes"`
 	ChannelBufferSize string   `yaml:"channelBufferSize"`

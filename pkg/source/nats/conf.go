@@ -3,7 +3,7 @@ package natssource
 import "github.com/ferama/bruco/pkg/source"
 
 type NatsSourceConf struct {
-	source.SourceConfBase
+	source.SourceConfCommon `yaml:",inline"`
 
 	ServerUrl  string `yaml:"serverUrl"`
 	QueueGroup string `yaml:"queueGroup"`

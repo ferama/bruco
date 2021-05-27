@@ -4,13 +4,19 @@ package source
 type SourceConf interface {
 	// IsFireAndForget defines if the function that
 	// handles the source message should be async or not
+	GetKind() string
 	IsFireAndForget() bool
 }
 
-type SourceConfBase struct {
-	FireAndForget bool `yaml:"fireAndForget"`
+type SourceConfCommon struct {
+	Kind          string `yaml:"kind"`
+	FireAndForget bool   `yaml:"fireAndForget"`
 }
 
-func (s *SourceConfBase) IsFireAndForget() bool {
+func (s *SourceConfCommon) IsFireAndForget() bool {
 	return s.FireAndForget
+}
+
+func (s *SourceConfCommon) GetKind() string {
+	return s.Kind
 }

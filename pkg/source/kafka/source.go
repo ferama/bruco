@@ -147,28 +147,15 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())
 	}()
 
-	// // NOTE:
-	// // Do not move the code below to a goroutine.
-	// // The `ConsumeClaim` itself is called within a goroutine, see:
-	// // https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
-	// for message := range claim.Messages() {
-	// 	claimedMessage <- *message
-	// 	// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
-	// 	log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
-	// }
-
 	for {
 		select {
 		case message := <-claim.Messages():
 			claimedMessage <- *message
 			// log.Printf("value = %s, timestamp = %v, topic = %s, partition = %d", string(message.Value), message.Timestamp, message.Topic, claim.Partition())
-			log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
+			// log.Printf("value = %s, partition = %d", string(message.Value), claim.Partition())
 		case <-session.Context().Done():
 			close(claimedMessage)
 			return nil
 		}
 	}
-
-	// close(claimedMessage)
-	// return nil
 }
