@@ -47,6 +47,8 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 	response := <-resolveChan
 	if response.Error != "" {
 		log.Printf("[HTTP-SOURCE] processor error: %s", response.Error)
+		http.Error(w, fmt.Sprintf("processor error: %s", response.Error), 400)
+		return
 	}
 	w.Header().Add("Content-Type", response.ContentType)
 	fmt.Fprintf(w, response.Data)
