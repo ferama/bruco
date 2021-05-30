@@ -66,6 +66,7 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 
 	// sink
+	// sink is not mandatory so no default in this switch/case
 	sinkKind := cfgFile.Sink["kind"]
 	switch sinkKind {
 	case "kafka":
@@ -78,8 +79,6 @@ func LoadConfig(filePath string) (*Config, error) {
 		c := &natssink.NatsSinkConf{}
 		yaml.Unmarshal(m, c)
 		config.Sink = c
-	default:
-		return nil, fmt.Errorf("invalid sink kind: %s", sinkKind)
 	}
 
 	// processor

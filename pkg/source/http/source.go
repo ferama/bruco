@@ -12,17 +12,21 @@ import (
 type HttpSource struct {
 	source.SourceBase
 
-	port string
+	port int
 }
 
 func NewHttpSource(cfg *HttpSourceConf) *HttpSource {
+	port := 8080
+	if cfg.Port != 0 {
+		port = cfg.Port
+	}
 	source := &HttpSource{
-		port: "8080",
+		port: port,
 	}
 
 	http.HandleFunc("/", source.httpHandler)
 	go func() {
-		addr := fmt.Sprintf(":%s", source.port)
+		addr := fmt.Sprintf(":%d", source.port)
 		log.Printf("[HTTP-SOURCE] listening on: %s", addr)
 		log.Fatal(http.ListenAndServe(addr, nil))
 	}()
@@ -44,5 +48,6 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 	if response.Error != "" {
 		log.Printf("[HTTP-SOURCE] processor error: %s", response.Error)
 	}
+	w.Header().Add("Content-Type", response.ContentType)
 	fmt.Fprintf(w, response.Data)
 }

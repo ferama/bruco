@@ -17,14 +17,14 @@ import (
 func getEventCallback(eventSink sink.Sink, resolve chan processor.Response) processor.EventCallback {
 	return func(response *processor.Response) {
 		if eventSink == nil {
-			if response.Data != "" {
-				log.Println("[ROOT] WARNING: processor has a return value but no sink is configured")
-			}
+			resolve <- *response
+			return
 		}
 		if response.Error != "" {
 			resolve <- *response
 			return
 		}
+		// If we are here, build sink output message
 		msg := &sink.Message{
 			Key:   response.Key,
 			Value: []byte(response.Data),

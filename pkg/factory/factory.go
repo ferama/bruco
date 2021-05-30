@@ -37,6 +37,11 @@ func GetSourceInstance(cfg *conf.Config) source.Source {
 
 // GetSinkInstance builds up a sink instance
 func GetSinkInstance(cfg *conf.Config) sink.Sink {
+	// sink is not mandatory
+	if cfg.Sink == nil {
+		return nil
+	}
+
 	var eventSink sink.Sink
 
 	sinkKind := cfg.Sink.GetKind()

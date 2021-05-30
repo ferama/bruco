@@ -8,9 +8,10 @@ import socket
 import logging
 
 class Response:
-    def __init__(self, key, data):
+    def __init__(self, key, data, content_type = "application/json"):
         self.key = key
         self.data = data
+        self.content_type = content_type
 
 class Context: 
     def __init__(self, worker_name):
@@ -65,12 +66,14 @@ class Wrapper:
                     out = {
                         "key": str(response.key),
                         "data": response.data,
+                        "contentType": response.content_type,
                         "error": ""
                     }
                 else:
                     out = {
                         "key": "",
                         "data": response,
+                        "contentType": "application/json",
                         "error": ""
                     }
                 out = json.dumps(out)
