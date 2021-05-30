@@ -5,7 +5,7 @@ import "github.com/ferama/bruco/pkg/processor"
 // MessageHandler is a type for handler callback function. The handler
 // will be invoked each time a source gets a message
 // type MessageHandler func(msg *Message, resolve chan error)
-type MessageHandler func(msg *Message, resolve chan processor.Response)
+type MessageHandler func(msg *Message) chan processor.Response
 
 // Source interface that needs to be implemented from each source
 type Source interface {

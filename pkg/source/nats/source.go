@@ -42,15 +42,15 @@ func (s *NatsSource) consume() {
 				Timestamp: time.Now(),
 				Value:     msg.Data,
 			}
-			resolveChan := make(chan processor.Response)
+			resolveChan := s.MessageHandler(outMsg)
+			// resolveChan := make(chan processor.Response)
 			go func(ch chan processor.Response) {
 				response := <-ch
 				if response.Error != "" {
 					log.Printf("[NATS-SOURCE] processor error: %s", response.Error)
 				}
-				close(ch)
 			}(resolveChan)
-			s.MessageHandler(outMsg, resolveChan)
+
 		}
 	}
 }

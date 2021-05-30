@@ -132,7 +132,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 					Timestamp: msg.Timestamp,
 					Value:     msg.Value,
 				}
-				resolveChan := make(chan processor.Response)
+				resolveChan := k.MessageHandler(outMsg)
 				go func(ch chan processor.Response) {
 					response := <-ch
 					if response.Error == "" {
@@ -140,9 +140,7 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 					} else {
 						log.Printf("[KAFKA-SOURCE] processor error: %s", response.Error)
 					}
-					close(ch)
 				}(resolveChan)
-				k.MessageHandler(outMsg, resolveChan)
 			}
 		}
 		log.Printf("[KAFKA-SOURCE] message handler stopped for partition %d", claim.Partition())

@@ -38,7 +38,7 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 		Timestamp: time.Now(),
 		Value:     []byte("prova"),
 	}
-	resolveChan := make(chan processor.Response)
+	resolveChan := s.MessageHandler(outMsg)
 	go func(ch chan processor.Response) {
 		response := <-ch
 		if response.Error != "" {
@@ -46,5 +46,5 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		close(ch)
 	}(resolveChan)
-	s.MessageHandler(outMsg, resolveChan)
+
 }

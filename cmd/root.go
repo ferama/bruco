@@ -58,7 +58,8 @@ var rootCmd = &cobra.Command{
 
 		workers := factory.GetProcessorWorkerPoolInstance(cfg)
 
-		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan processor.Response) {
+		eventSource.SetMessageHandler(func(msg *source.Message) chan processor.Response {
+			resolve := make(chan processor.Response)
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
@@ -74,6 +75,7 @@ var rootCmd = &cobra.Command{
 					getEventCallback(eventSink, resolve)(response)
 				}
 			}
+			return resolve
 		})
 
 		c := make(chan os.Signal, 1)
