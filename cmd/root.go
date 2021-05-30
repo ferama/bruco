@@ -59,7 +59,11 @@ var rootCmd = &cobra.Command{
 		workers := factory.GetProcessorWorkerPoolInstance(cfg)
 
 		eventSource.SetMessageHandler(func(msg *source.Message) chan processor.Response {
-			resolve := make(chan processor.Response)
+			// IMPORTANT: resolve chan need to be buffered. The buffer
+			// size should be exatcly 1 (one response for each request)
+			// It I make an unbuffered channel the channel writer will block
+			// until a reader is ready to consume the message.
+			resolve := make(chan processor.Response, 1)
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition

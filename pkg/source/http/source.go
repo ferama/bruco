@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/source"
 )
 
@@ -39,12 +38,9 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 		Value:     []byte("prova"),
 	}
 	resolveChan := s.MessageHandler(outMsg)
-	go func(ch chan processor.Response) {
-		response := <-ch
-		if response.Error != "" {
-			log.Printf("[HTTP-SOURCE] processor error: %s", response.Error)
-		}
-		close(ch)
-	}(resolveChan)
-
+	response := <-resolveChan
+	if response.Error != "" {
+		log.Printf("[HTTP-SOURCE] processor error: %s", response.Error)
+	}
+	fmt.Fprintf(w, response.Data)
 }
