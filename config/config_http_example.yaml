@@ -1,0 +1,9 @@
+processor:
+  handlerURL: https://raw.githubusercontent.com/ferama/bruco/main/hack/examples/basic/handler.py
+  # moduleName: myhandler.handler
+  workers: 1
+
+source:
+  kind: http
+  ignoreProcessorResponse: false
+  # port: 8090

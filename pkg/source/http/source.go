@@ -12,7 +12,8 @@ import (
 type HttpSource struct {
 	source.SourceBase
 
-	port int
+	ignoreReponse bool
+	port          int
 }
 
 func NewHttpSource(cfg *HttpSourceConf) *HttpSource {
@@ -21,8 +22,10 @@ func NewHttpSource(cfg *HttpSourceConf) *HttpSource {
 		port = cfg.Port
 	}
 	source := &HttpSource{
-		port: port,
+		port:          port,
+		ignoreReponse: cfg.IgnoreProcessorResponse,
 	}
+	log.Println(source.ignoreReponse)
 
 	http.HandleFunc("/", source.httpHandler)
 	go func() {
@@ -50,6 +53,11 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("processor error: %s", response.Error), 400)
 		return
 	}
-	w.Header().Add("Content-Type", response.ContentType)
-	fmt.Fprintf(w, response.Data)
+	if !s.ignoreReponse {
+		w.Header().Add("Content-Type", response.ContentType)
+		fmt.Fprintf(w, response.Data)
+	} else {
+		fmt.Fprintf(w, "ok")
+	}
+
 }
