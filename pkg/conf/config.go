@@ -9,6 +9,7 @@ import (
 	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
 	natssink "github.com/ferama/bruco/pkg/sink/nats"
 	"github.com/ferama/bruco/pkg/source"
+	httpsource "github.com/ferama/bruco/pkg/source/http"
 	kafkasource "github.com/ferama/bruco/pkg/source/kafka"
 	natssource "github.com/ferama/bruco/pkg/source/nats"
 	"gopkg.in/yaml.v2"
@@ -53,6 +54,11 @@ func LoadConfig(filePath string) (*Config, error) {
 	case "nats":
 		m, _ := yaml.Marshal(cfgFile.Source)
 		c := &natssource.NatsSourceConf{}
+		yaml.Unmarshal(m, c)
+		config.Source = c
+	case "http":
+		m, _ := yaml.Marshal(cfgFile.Source)
+		c := &httpsource.HttpSourceConf{}
 		yaml.Unmarshal(m, c)
 		config.Source = c
 	default:

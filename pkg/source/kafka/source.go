@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/source"
 )
 
@@ -131,13 +132,13 @@ func (k *KafkaSource) ConsumeClaim(session sarama.ConsumerGroupSession, claim sa
 					Timestamp: msg.Timestamp,
 					Value:     msg.Value,
 				}
-				resolveChan := make(chan error)
-				go func(ch chan error) {
-					err := <-ch
-					if err == nil {
+				resolveChan := make(chan processor.Response)
+				go func(ch chan processor.Response) {
+					response := <-ch
+					if response.Error == "" {
 						session.MarkMessage(&msg, "")
 					} else {
-						log.Printf("[KAFKA-SOURCE] processor error: %s", err)
+						log.Printf("[KAFKA-SOURCE] processor error: %s", response.Error)
 					}
 					close(ch)
 				}(resolveChan)

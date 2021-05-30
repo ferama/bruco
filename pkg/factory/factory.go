@@ -9,6 +9,7 @@ import (
 	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
 	natssink "github.com/ferama/bruco/pkg/sink/nats"
 	"github.com/ferama/bruco/pkg/source"
+	httpsource "github.com/ferama/bruco/pkg/source/http"
 	kafkasource "github.com/ferama/bruco/pkg/source/kafka"
 	natssource "github.com/ferama/bruco/pkg/source/nats"
 )
@@ -24,6 +25,9 @@ func GetSourceInstance(cfg *conf.Config) source.Source {
 		return eventSource
 	case "nats":
 		eventSource = natssource.NewNatsSource(cfg.Source.(*natssource.NatsSourceConf))
+		return eventSource
+	case "http":
+		eventSource = httpsource.NewHttpSource(cfg.Source.(*httpsource.HttpSourceConf))
 		return eventSource
 	default:
 		log.Fatalf("invalid source kind: %s", sourceKind)
@@ -49,7 +53,7 @@ func GetSinkInstance(cfg *conf.Config) sink.Sink {
 	}
 }
 
-// GetProcessorWorkerPool build up a processor worker pool
-func GetProcessorWorkerPool(cfg *conf.Config) *processor.Pool {
+// GetProcessorWorkerPoolInstance build up a processor worker pool
+func GetProcessorWorkerPoolInstance(cfg *conf.Config) *processor.Pool {
 	return processor.NewPool(cfg.Processor)
 }

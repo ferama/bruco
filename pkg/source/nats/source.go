@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/source"
 	"github.com/nats-io/nats.go"
 )
@@ -41,11 +42,11 @@ func (s *NatsSource) consume() {
 				Timestamp: time.Now(),
 				Value:     msg.Data,
 			}
-			resolveChan := make(chan error)
-			go func(ch chan error) {
-				err := <-ch
-				if err != nil {
-					log.Printf("[NATS-SOURCE] processor error: %s", err)
+			resolveChan := make(chan processor.Response)
+			go func(ch chan processor.Response) {
+				response := <-ch
+				if response.Error != "" {
+					log.Printf("[NATS-SOURCE] processor error: %s", response.Error)
 				}
 				close(ch)
 			}(resolveChan)

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -15,21 +14,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func getEventCallback(eventSink sink.Sink, resolve chan error) processor.EventCallback {
+func getEventCallback(eventSink sink.Sink, resolve chan processor.Response) processor.EventCallback {
 	return func(response *processor.Response) {
-		if response.Error != "" {
-			resolve <- errors.New(response.Error)
-			return
-		}
 		if eventSink == nil {
 			if response.Data != "" {
 				log.Println("[ROOT] WARNING: processor has a return value but no sink is configured")
 			}
-			resolve <- nil
-			return
 		}
-		if len(response.Data) == 0 {
-			resolve <- nil
+		if response.Error != "" {
+			resolve <- *response
 			return
 		}
 		msg := &sink.Message{
@@ -40,7 +33,7 @@ func getEventCallback(eventSink sink.Sink, resolve chan error) processor.EventCa
 		if err != nil {
 			log.Printf("[ROOT] publish error: %s", err)
 		}
-		resolve <- err
+		resolve <- *response
 	}
 }
 
@@ -63,9 +56,9 @@ var rootCmd = &cobra.Command{
 			log.Println("[ROOT] running in sync mode")
 		}
 
-		workers := factory.GetProcessorWorkerPool(cfg)
+		workers := factory.GetProcessorWorkerPoolInstance(cfg)
 
-		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan error) {
+		eventSource.SetMessageHandler(func(msg *source.Message, resolve chan processor.Response) {
 			if asyncHandler {
 				// NOTE: the async handler version will not guarantee
 				// messages handling order between same partition
@@ -73,7 +66,10 @@ var rootCmd = &cobra.Command{
 			} else {
 				response, err := workers.HandleEvent(msg.Value)
 				if err != nil {
-					resolve <- err
+					resolve <- processor.Response{
+						Data:  "",
+						Error: err.Error(),
+					}
 				} else {
 					getEventCallback(eventSink, resolve)(response)
 				}
