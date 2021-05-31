@@ -8,8 +8,8 @@ type EnvVar struct {
 
 // ProcessorConf holds the processor configuration
 type ProcessorConf struct {
-	HandlerURL string   `yaml:"handlerURL"`
-	ModuleName string   `yaml:"moduleName"`
-	Workers    int      `yaml:"workers"`
-	Env        []EnvVar `yaml:"env"`
+	HandlerPath string   `yaml:"handlerPath"`
+	ModuleName  string   `yaml:"moduleName"`
+	Workers     int      `yaml:"workers"`
+	Env         []EnvVar `yaml:"env"`
 }

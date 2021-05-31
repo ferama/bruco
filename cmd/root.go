@@ -98,6 +98,7 @@ var rootCmd = &cobra.Command{
 		if workers != nil {
 			workers.Destroy()
 		}
+		cfg.Cleanup()
 	},
 }
 

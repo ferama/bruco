@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-
-	"github.com/ferama/bruco/pkg/loader"
 )
 
 type EventCallback func(event *Response)
@@ -18,13 +16,12 @@ type Pool struct {
 	handlerPath string
 	moduleName  string
 	env         []EnvVar
-	loader      *loader.Loader
 
 	availableWorkers chan *Python
 }
 
 // GetPoolInstance ...
-func NewPool(cfg *ProcessorConf) *Pool {
+func NewPool(cfg *ProcessorConf, workingDir string) *Pool {
 	data, _ := pythonWrapper.ReadFile("wrapper/wrapper.py")
 	file, err := ioutil.TempFile(os.TempDir(), "bruco-python-wrapper-")
 	if err != nil {
@@ -38,24 +35,25 @@ func NewPool(cfg *ProcessorConf) *Pool {
 	}
 	log.Printf("[PROCESSOR] unpacked wrapper to %s", file.Name())
 
-	loader := loader.NewLoader()
-	path, err := loader.Load(cfg.HandlerURL)
-	if err != nil {
-		log.Fatalf("[PROCESSOR] unable to load handler: %s", err)
-	}
+	// loader := loader.NewLoader()
+	// path, err := loader.Load(cfg.HandlerURL)
+	// if err != nil {
+	// 	log.Fatalf("[PROCESSOR] unable to load handler: %s", err)
+	// }
+	// log.Println("####", path)
 
 	pool := &Pool{
 		pythonMap:        make(map[string]*Python),
 		availableWorkers: make(chan *Python, cfg.Workers),
 		wrapperPath:      file.Name(),
-		handlerPath:      path,
+		handlerPath:      cfg.HandlerPath,
 		env:              cfg.Env,
-		loader:           loader,
+		// loader:           loader,
 	}
 	pool.moduleName = pool.resolveModuleName(cfg.ModuleName)
 	for i := 0; i < cfg.Workers; i++ {
 		name := fmt.Sprintf("worker-%d", i)
-		pool.createPythonInstance(name)
+		pool.createPythonInstance(name, workingDir)
 
 	}
 	log.Printf("[PROCESSOR] allocated %d workers", cfg.Workers)
@@ -106,13 +104,14 @@ func (p *Pool) HandleEvent(data []byte) (*Response, error) {
 }
 
 // createPythonInstance ...
-func (p *Pool) createPythonInstance(name string) *Python {
+func (p *Pool) createPythonInstance(name string, workingDir string) *Python {
 	python := NewPython(name,
 		p.availableWorkers,
 		p.wrapperPath,
 		p.handlerPath,
 		p.moduleName,
 		p.env,
+		workingDir,
 	)
 	p.pythonMap[name] = python
 
@@ -122,7 +121,7 @@ func (p *Pool) createPythonInstance(name string) *Python {
 
 // Destroy ...
 func (p *Pool) Destroy() {
-	p.loader.Cleanup()
+	// p.loader.Cleanup()
 	os.Remove(p.wrapperPath)
 	for key, python := range p.pythonMap {
 		python.kill()

@@ -1,6 +1,5 @@
 processor:
-  handlerURL: https://raw.githubusercontent.com/ferama/bruco/main/hack/examples/basic/handler.py
-  # moduleName: myhandler.handler
+  handlerPath: ./hack/examples/basic
   workers: 1
 
 source:

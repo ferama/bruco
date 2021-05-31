@@ -34,15 +34,9 @@ class Wrapper:
         self.socketPath = socket
         self.worker_name = worker_name
 
-        path = pathlib.Path(handler_path)
-        if path.is_dir():
-            os.chdir(handler_path)
-            sys.path.append(".")
-            self.module_name = module_name
-        else:
-            # parse py handlers like /tmp/bruco-71236z-handler.py
-            os.chdir(path.parent)
-            self.module_name = path.name.replace(path.suffix, "")
+        os.chdir(handler_path)
+        sys.path.append(".")
+        self.module_name = module_name
             
         signal.signal(signal.SIGINT, self.sigint_handler)
 

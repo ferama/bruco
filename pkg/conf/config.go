@@ -2,8 +2,11 @@ package conf
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 
+	"github.com/ferama/bruco/pkg/loader"
 	"github.com/ferama/bruco/pkg/processor"
 	"github.com/ferama/bruco/pkg/sink"
 	kafkasink "github.com/ferama/bruco/pkg/sink/kafka"
@@ -19,29 +22,38 @@ type Config struct {
 	Processor *processor.ProcessorConf
 	Source    source.SourceConf
 	Sink      sink.SinkConf
+
+	WorkingDir string
+
+	loader *loader.Loader
 }
 
 // LoadConfig parses the [config].yaml file and loads its values
 // into the Config struct
-func LoadConfig(filePath string) (*Config, error) {
+func LoadConfig(fileURL string) (*Config, error) {
+	config := &Config{
+		loader: loader.NewLoader(),
+	}
+
+	fileHandler, err := config.findConfig(fileURL)
+	if err != nil {
+		return nil, err
+	}
+	defer fileHandler.Close()
+
+	config.WorkingDir = filepath.Dir(fileHandler.Name())
+
 	var cfgFile struct {
 		Processor map[string]interface{} `yaml:"processor"`
 		Source    map[string]interface{} `yaml:"source"`
 		Sink      map[string]interface{} `yaml:"sink"`
 	}
 
-	f, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	decoder := yaml.NewDecoder(f)
+	decoder := yaml.NewDecoder(fileHandler)
 	err = decoder.Decode(&cfgFile)
 	if err != nil {
 		return nil, err
 	}
-	config := &Config{}
 
 	// source
 	sourceKind := cfgFile.Source["kind"]
@@ -90,4 +102,46 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c *Config) findConfig(fileURL string) (*os.File, error) {
+	var fileHandler *os.File
+	var err error
+
+	filePath, err := c.loader.Load(fileURL)
+	if err != nil {
+		return nil, err
+	}
+
+	fileHandler, err = os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	fi, err := fileHandler.Stat()
+	if err != nil {
+		return nil, err
+	}
+	if fi.IsDir() {
+		// it's a directory
+		path := filepath.Join(filePath, "config.yaml")
+		fileHandler.Close()
+		fileHandler, err = os.Open(path)
+
+		if err != nil {
+			entries, _ := ioutil.ReadDir(filePath)
+			if len(entries) > 0 {
+				path := filepath.Join(filePath, entries[0].Name(), "config.yaml")
+				fileHandler.Close()
+				fileHandler, err = os.Open(path)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+	return fileHandler, nil
+}
+
+func (c *Config) Cleanup() {
+	c.loader.Cleanup()
 }

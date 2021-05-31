@@ -63,5 +63,5 @@ func GetProcessorWorkerPoolInstance(cfg *conf.Config) *processor.Pool {
 	if cfg.Processor == nil {
 		return nil
 	}
-	return processor.NewPool(cfg.Processor)
+	return processor.NewPool(cfg.Processor, cfg.WorkingDir)
 }

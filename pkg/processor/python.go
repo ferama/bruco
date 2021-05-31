@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/ferama/bruco/pkg/channel"
 )
@@ -22,10 +23,14 @@ type Python struct {
 
 // NewPython creates a python instance
 func NewPython(name string, availableWorkers chan *Python,
-	wrapperPath string, handlerPath string, moduleName string, env []EnvVar) *Python {
+	wrapperPath string, handlerPath string,
+	moduleName string, env []EnvVar, workingDir string) *Python {
 	ch, _ := channel.NewChannel()
 
 	pythonPath := "python3"
+	if !filepath.IsAbs(handlerPath) {
+		handlerPath = filepath.Join(workingDir, handlerPath)
+	}
 
 	args := []string{
 		pythonPath, "-u", wrapperPath,

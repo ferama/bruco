@@ -50,7 +50,7 @@ func (a *archive) cleanup() {
 }
 
 func (a *archive) unzip(src string) (string, error) {
-	dest, err := ioutil.TempDir(os.TempDir(), "bruco-handler-")
+	dest, err := ioutil.TempDir(os.TempDir(), "bruco-resource-")
 	if err != nil {
 		log.Fatal(err)
 	}
