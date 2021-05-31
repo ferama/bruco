@@ -2,6 +2,7 @@ package httpsource
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -39,8 +40,8 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 	if s.MessageHandler == nil {
 		log.Panicln("[HTTP-SOURCE] you need to set a message handler for http source")
 	}
-	r.ParseForm()
-	body := r.Form.Get("")
+
+	body, _ := ioutil.ReadAll(r.Body)
 	outMsg := &source.Message{
 		Timestamp: time.Now(),
 		Value:     []byte(body),
