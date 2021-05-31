@@ -13,44 +13,46 @@ import (
 // Loader object will parse the handlerURL and prepare the function
 // to be executed from processor
 type Loader struct {
-	rawUrl string
-
-	archiveFilePath string
-	archive         *archive
+	archive     *archive
+	payloadPath string
 }
 
 // NewLoader creates a new Loader object
-func NewLoader(url string) *Loader {
-	loader := &Loader{
-		rawUrl: url,
-	}
+func NewLoader() *Loader {
+	loader := &Loader{}
 
 	return loader
 }
 
 // Load actually loads and prepare the function to be executed
-func (l *Loader) Load() (string, error) {
+func (l *Loader) Load(resourceURL string) (string, error) {
 	var err error
 	var path string
 
-	parsed, err := url.Parse(l.rawUrl)
+	parsed, err := url.Parse(resourceURL)
 	if err != nil {
 		return "", err
 	}
 	switch lower := strings.ToLower(parsed.Scheme); lower {
-	case "local":
+	case "":
 		path = fmt.Sprintf("%s%s", parsed.Host, parsed.Path)
 	case "http", "https":
-		path, err = l.loadFromHttp()
+		path, err = l.httpDownload(resourceURL)
+		l.payloadPath = path
 	default:
 		return "", fmt.Errorf("unsupported scheme: %s", parsed.Scheme)
 	}
-
+	if err != nil {
+		return "", err
+	}
+	archive := newArchive(path)
+	path, err = archive.getResourcePath()
+	l.archive = archive
 	return path, err
 }
 
-func (l *Loader) loadFromHttp() (string, error) {
-	parsed, _ := url.Parse(l.rawUrl)
+func (l *Loader) httpDownload(resourceURL string) (string, error) {
+	parsed, _ := url.Parse(resourceURL)
 	path := parsed.Path
 	segments := strings.Split(path, "/")
 	fileName := segments[len(segments)-1]
@@ -61,14 +63,13 @@ func (l *Loader) loadFromHttp() (string, error) {
 	}
 	defer file.Close()
 
-	l.archiveFilePath = file.Name()
 	client := http.Client{
 		CheckRedirect: func(r *http.Request, via []*http.Request) error {
 			r.URL.Opaque = r.URL.Path
 			return nil
 		},
 	}
-	resp, err := client.Get(l.rawUrl)
+	resp, err := client.Get(resourceURL)
 	if err != nil {
 		return "", fmt.Errorf("can't store file %s", err)
 	}
@@ -80,13 +81,10 @@ func (l *Loader) loadFromHttp() (string, error) {
 		return "", fmt.Errorf("can't store file %s", err)
 	}
 
-	l.archive = newArchive(file.Name())
-	return l.archive.getHandlerPath()
+	return file.Name(), nil
 }
 
 func (l *Loader) Cleanup() {
-	os.Remove(l.archiveFilePath)
-	if l.archive != nil {
-		l.archive.cleanup()
-	}
+	os.Remove(l.payloadPath)
+	l.archive.cleanup()
 }

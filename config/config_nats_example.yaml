@@ -1,6 +1,6 @@
 processor:
-  handlerURL: local://./hack/examples/basic
-  # handlerURL: local://./hack/examples/basic
+  handlerURL: ./hack/examples/basic
+  # handlerURL: ./hack/examples/basic
   # handlerURL: http://localhost:5000/handler.zip
   # handlerURL: http://localhost:5000/handler/handler.py
   # handlerURL: https://raw.githubusercontent.com/ferama/bruco/main/hack/examples/basic/handler.py

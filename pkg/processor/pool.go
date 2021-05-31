@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ferama/bruco/pkg/processor/loader"
+	"github.com/ferama/bruco/pkg/loader"
 )
 
 type EventCallback func(event *Response)
@@ -38,8 +38,8 @@ func NewPool(cfg *ProcessorConf) *Pool {
 	}
 	log.Printf("[PROCESSOR] unpacked wrapper to %s", file.Name())
 
-	loader := loader.NewLoader(cfg.HandlerURL)
-	path, err := loader.Load()
+	loader := loader.NewLoader()
+	path, err := loader.Load(cfg.HandlerURL)
 	if err != nil {
 		log.Fatalf("[PROCESSOR] unable to load handler: %s", err)
 	}

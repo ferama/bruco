@@ -24,14 +24,12 @@ func newArchive(path string) *archive {
 	return a
 }
 
-func (a *archive) getHandlerPath() (string, error) {
+func (a *archive) getResourcePath() (string, error) {
 	ext := filepath.Ext(a.sourcePath)
 	var path string
 	var err error
 
 	switch lower := strings.ToLower(ext); lower {
-	case ".py":
-		path = a.sourcePath
 	case ".zip":
 		path, err = a.unzip(a.sourcePath)
 		a.toCleanPath = path
@@ -39,7 +37,7 @@ func (a *archive) getHandlerPath() (string, error) {
 		// folder and run pip install against it if exists
 		// path = "./hack/examples/basic"
 	default:
-		err = fmt.Errorf("unsupported extension: %s", ext)
+		path = a.sourcePath
 
 	}
 	return path, err
