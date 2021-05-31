@@ -122,11 +122,11 @@ func (p *Pool) createPythonInstance(name string) *Python {
 
 // Destroy ...
 func (p *Pool) Destroy() {
+	p.loader.Cleanup()
+	os.Remove(p.wrapperPath)
 	for key, python := range p.pythonMap {
 		python.kill()
 		python = nil
 		delete(p.pythonMap, key)
 	}
-	os.Remove(p.wrapperPath)
-	p.loader.Cleanup()
 }

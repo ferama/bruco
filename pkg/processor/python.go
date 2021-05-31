@@ -42,12 +42,11 @@ func NewPython(name string, availableWorkers chan *Python,
 	for _, e := range env {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", e.Name, e.Value))
 	}
-
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		panic(err)
+		log.Fatalf("[PYTHON] %s", err)
 	}
 
 	python := &Python{
