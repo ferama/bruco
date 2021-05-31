@@ -64,19 +64,28 @@ var rootCmd = &cobra.Command{
 			// It I make an unbuffered channel the channel writer will block
 			// until a reader is ready to consume the message.
 			resolve := make(chan processor.Response, 1)
-			if asyncHandler {
-				// NOTE: the async handler version will not guarantee
-				// messages handling order between same partition
-				workers.HandleEventAsync(msg.Value, getEventCallback(eventSink, resolve))
+			if workers == nil {
+				// no processor defined. Copy source to sink
+				response := processor.Response{
+					Data:  string(msg.Value),
+					Error: "",
+				}
+				getEventCallback(eventSink, resolve)(&response)
 			} else {
-				response, err := workers.HandleEvent(msg.Value)
-				if err != nil {
-					resolve <- processor.Response{
-						Data:  "",
-						Error: err.Error(),
-					}
+				if asyncHandler {
+					// NOTE: the async handler version will not guarantee
+					// messages handling order between same partition
+					workers.HandleEventAsync(msg.Value, getEventCallback(eventSink, resolve))
 				} else {
-					getEventCallback(eventSink, resolve)(response)
+					response, err := workers.HandleEvent(msg.Value)
+					if err != nil {
+						resolve <- processor.Response{
+							Data:  "",
+							Error: err.Error(),
+						}
+					} else {
+						getEventCallback(eventSink, resolve)(response)
+					}
 				}
 			}
 			return resolve
@@ -86,7 +95,9 @@ var rootCmd = &cobra.Command{
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		<-c
 		// cleanup
-		workers.Destroy()
+		if workers != nil {
+			workers.Destroy()
+		}
 	},
 }
 

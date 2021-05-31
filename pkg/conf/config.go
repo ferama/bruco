@@ -82,10 +82,12 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 
 	// processor
-	m, _ := yaml.Marshal(cfgFile.Processor)
-	c := &processor.ProcessorConf{}
-	yaml.Unmarshal(m, c)
-	config.Processor = c
+	if len(cfgFile.Processor) != 0 {
+		m, _ := yaml.Marshal(cfgFile.Processor)
+		c := &processor.ProcessorConf{}
+		yaml.Unmarshal(m, c)
+		config.Processor = c
+	}
 
 	return config, nil
 }

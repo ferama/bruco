@@ -60,5 +60,8 @@ func GetSinkInstance(cfg *conf.Config) sink.Sink {
 
 // GetProcessorWorkerPoolInstance build up a processor worker pool
 func GetProcessorWorkerPoolInstance(cfg *conf.Config) *processor.Pool {
+	if cfg.Processor == nil {
+		return nil
+	}
 	return processor.NewPool(cfg.Processor)
 }

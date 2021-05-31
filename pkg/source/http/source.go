@@ -25,7 +25,6 @@ func NewHttpSource(cfg *HttpSourceConf) *HttpSource {
 		port:                    port,
 		ignoreProcessorResponse: cfg.IgnoreProcessorResponse,
 	}
-	log.Println(source.ignoreProcessorResponse)
 
 	http.HandleFunc("/", source.httpHandler)
 	go func() {
@@ -54,7 +53,9 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !s.ignoreProcessorResponse {
-		w.Header().Add("Content-Type", response.ContentType)
+		if response.ContentType != "" {
+			w.Header().Add("Content-Type", response.ContentType)
+		}
 		fmt.Fprintf(w, response.Data)
 	} else {
 		fmt.Fprintf(w, "ok")
