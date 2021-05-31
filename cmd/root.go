@@ -44,7 +44,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, err := conf.LoadConfig(args[0])
 		if err != nil {
-			panic(err)
+			log.Fatalf("[ROOT] %s", err)
 		}
 
 		eventSource := factory.GetSourceInstance(cfg)
