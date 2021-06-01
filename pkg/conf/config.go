@@ -41,7 +41,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 		loader: loader.NewLoader(),
 	}
 
-	fileHandler, err := config.loader.GetConfig(fileURL)
+	fileHandler, err := config.loader.LoadFunction(fileURL)
 	if err != nil {
 		return nil, err
 	}

@@ -84,7 +84,7 @@ class Wrapper:
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="the python shell")
+    parser = argparse.ArgumentParser(description="the python wrapper")
     parser.add_argument("--handler-path", 
                             required=True,
                             metavar="handler_path", 

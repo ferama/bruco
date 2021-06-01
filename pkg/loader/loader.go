@@ -2,20 +2,21 @@ package loader
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ferama/bruco/pkg/loader/getter"
 )
 
 // Loader object will parse the handlerURL and prepare the function
 // to be executed from processor
 type Loader struct {
-	archive     *archive
-	payloadPath string
+	archive *archive
+	// payloadPath string
+	getter Getter
 }
 
 // NewLoader creates a new Loader object
@@ -26,7 +27,7 @@ func NewLoader() *Loader {
 }
 
 // Load actually loads and prepare the function to be executed
-func (l *Loader) load(resourceURL string) (string, error) {
+func (l *Loader) runGetter(resourceURL string) (string, error) {
 	var err error
 	var path string
 
@@ -39,8 +40,8 @@ func (l *Loader) load(resourceURL string) (string, error) {
 		// no scheme. It's a local file
 		path = fmt.Sprintf("%s%s", parsed.Host, parsed.Path)
 	case "http", "https":
-		path, err = l.httpDownload(resourceURL)
-		l.payloadPath = path
+		l.getter = getter.NewHttpGetter()
+		path, err = l.getter.Download(resourceURL)
 	default:
 		return "", fmt.Errorf("unsupported scheme: %s", parsed.Scheme)
 	}
@@ -55,12 +56,13 @@ func (l *Loader) load(resourceURL string) (string, error) {
 	return path, err
 }
 
-// search for a config file
-func (l *Loader) GetConfig(fileURL string) (*os.File, error) {
+// LoadFunction loads the function and returns a pointer to the config yaml
+// file
+func (l *Loader) LoadFunction(fileURL string) (*os.File, error) {
 	var fileHandler *os.File
 	var err error
 
-	filePath, err := l.load(fileURL)
+	filePath, err := l.runGetter(fileURL)
 	if err != nil {
 		return nil, err
 	}
@@ -109,42 +111,8 @@ func (l *Loader) GetConfig(fileURL string) (*os.File, error) {
 	return fileHandler, nil
 }
 
-// downloads the resource from an http server
-func (l *Loader) httpDownload(resourceURL string) (string, error) {
-	parsed, _ := url.Parse(resourceURL)
-	path := parsed.Path
-	segments := strings.Split(path, "/")
-	fileName := segments[len(segments)-1]
-
-	file, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("bruco_*_%s", fileName))
-	if err != nil {
-		return "", fmt.Errorf("can't store file %s", err)
-	}
-	defer file.Close()
-
-	client := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
-			r.URL.Opaque = r.URL.Path
-			return nil
-		},
-	}
-	resp, err := client.Get(resourceURL)
-	if err != nil {
-		return "", fmt.Errorf("can't store file %s", err)
-	}
-	defer resp.Body.Close()
-
-	// Put content on file
-	_, err = io.Copy(file, resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("can't store file %s", err)
-	}
-
-	return file.Name(), nil
-}
-
 // Cleanup removes temporary files used during the loading process
 func (l *Loader) Cleanup() {
-	os.Remove(l.payloadPath)
+	l.getter.Cleanup()
 	l.archive.cleanup()
 }
