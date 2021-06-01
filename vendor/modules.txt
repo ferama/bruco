@@ -1,12 +1,6 @@
 # github.com/Shopify/sarama v1.29.0
 ## explicit
 github.com/Shopify/sarama
-# github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6
-## explicit
-# github.com/coreos/go-etcd v2.0.0+incompatible
-## explicit
-# github.com/cpuguy83/go-md2man v1.0.10
-## explicit
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/eapache/go-resiliency v1.2.0
@@ -17,6 +11,8 @@ github.com/eapache/go-xerial-snappy
 github.com/eapache/queue
 # github.com/golang/snappy v0.0.3
 github.com/golang/snappy
+# github.com/google/uuid v1.1.1
+github.com/google/uuid
 # github.com/hashicorp/go-uuid v1.0.2
 github.com/hashicorp/go-uuid
 # github.com/inconshreveable/mousetrap v1.0.0
@@ -62,11 +58,40 @@ github.com/jcmturner/gokrb5/v8/types
 # github.com/jcmturner/rpc/v2 v2.0.3
 github.com/jcmturner/rpc/v2/mstypes
 github.com/jcmturner/rpc/v2/ndr
+# github.com/json-iterator/go v1.1.10
+github.com/json-iterator/go
 # github.com/klauspost/compress v1.12.2
 github.com/klauspost/compress/fse
 github.com/klauspost/compress/huff0
 github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
+# github.com/klauspost/cpuid v1.3.1
+github.com/klauspost/cpuid
+# github.com/minio/md5-simd v1.1.0
+github.com/minio/md5-simd
+# github.com/minio/minio-go/v7 v7.0.10
+## explicit
+github.com/minio/minio-go/v7
+github.com/minio/minio-go/v7/pkg/credentials
+github.com/minio/minio-go/v7/pkg/encrypt
+github.com/minio/minio-go/v7/pkg/lifecycle
+github.com/minio/minio-go/v7/pkg/notification
+github.com/minio/minio-go/v7/pkg/replication
+github.com/minio/minio-go/v7/pkg/s3utils
+github.com/minio/minio-go/v7/pkg/set
+github.com/minio/minio-go/v7/pkg/signer
+github.com/minio/minio-go/v7/pkg/sse
+github.com/minio/minio-go/v7/pkg/tags
+# github.com/minio/sha256-simd v0.1.1
+github.com/minio/sha256-simd
+# github.com/mitchellh/go-homedir v1.1.0
+github.com/mitchellh/go-homedir
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
+# github.com/nats-io/nats-server/v2 v2.2.6
+## explicit
 # github.com/nats-io/nats.go v1.11.0
 ## explicit
 github.com/nats-io/nats.go
@@ -81,24 +106,38 @@ github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
 # github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 github.com/rcrowley/go-metrics
+# github.com/rs/xid v1.2.1
+github.com/rs/xid
 # github.com/spf13/cobra v1.1.3
 ## explicit
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8
-## explicit
-# github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77
-## explicit
 # golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
+golang.org/x/crypto/argon2
+golang.org/x/crypto/blake2b
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
 golang.org/x/crypto/md4
 golang.org/x/crypto/pbkdf2
 # golang.org/x/net v0.0.0-20210427231257-85d9c07bbe3a
+golang.org/x/net/http/httpguts
 golang.org/x/net/http2/hpack
+golang.org/x/net/idna
 golang.org/x/net/internal/socks
 golang.org/x/net/proxy
+golang.org/x/net/publicsuffix
+# golang.org/x/sys v0.0.0-20210423082822-04245dca01da
+golang.org/x/sys/cpu
+# golang.org/x/text v0.3.6
+golang.org/x/text/secure/bidirule
+golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+# google.golang.org/protobuf v1.26.0
+## explicit
+# gopkg.in/ini.v1 v1.57.0
+gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit
 gopkg.in/yaml.v2

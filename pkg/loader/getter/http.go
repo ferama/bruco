@@ -3,16 +3,15 @@ package getter
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
-	"net/url"
-	"os"
-	"strings"
 )
 
 // HttpGetter
+// It allows to load a function from http server
+// Example:
+// $ bruco https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
 type HttpGetter struct {
-	payloadPath string
+	getterCommon
 }
 
 // NewHttpGetter
@@ -22,16 +21,14 @@ func NewHttpGetter() *HttpGetter {
 
 // Download
 func (g *HttpGetter) Download(resourceURL string) (string, error) {
-	parsed, _ := url.Parse(resourceURL)
-	path := parsed.Path
-	segments := strings.Split(path, "/")
-	fileName := segments[len(segments)-1]
-
-	file, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("bruco_*_%s", fileName))
+	file, err := g.getTmpFile(resourceURL)
 	if err != nil {
 		return "", fmt.Errorf("can't store file %s", err)
 	}
 	defer file.Close()
+	// do not forget to set this one for correct cleanup by the parent class
+	// getterCommon
+	g.PayloadPath = file.Name()
 
 	client := http.Client{
 		CheckRedirect: func(r *http.Request, via []*http.Request) error {
@@ -51,11 +48,5 @@ func (g *HttpGetter) Download(resourceURL string) (string, error) {
 		return "", fmt.Errorf("can't store file %s", err)
 	}
 
-	g.payloadPath = file.Name()
 	return file.Name(), nil
-}
-
-// Cleanup
-func (g *HttpGetter) Cleanup() {
-	os.Remove(g.payloadPath)
 }

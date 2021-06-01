@@ -16,7 +16,7 @@ import (
 type Loader struct {
 	archive *archive
 	// payloadPath string
-	getter Getter
+	getter getter.Getter
 }
 
 // NewLoader creates a new Loader object
@@ -41,6 +41,9 @@ func (l *Loader) runGetter(resourceURL string) (string, error) {
 		path = fmt.Sprintf("%s%s", parsed.Host, parsed.Path)
 	case "http", "https":
 		l.getter = getter.NewHttpGetter()
+		path, err = l.getter.Download(resourceURL)
+	case "s3", "s3s":
+		l.getter = getter.NewS3Getter()
 		path, err = l.getter.Download(resourceURL)
 	default:
 		return "", fmt.Errorf("unsupported scheme: %s", parsed.Scheme)
@@ -113,6 +116,10 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, error) {
 
 // Cleanup removes temporary files used during the loading process
 func (l *Loader) Cleanup() {
-	l.getter.Cleanup()
-	l.archive.cleanup()
+	if l.getter != nil {
+		l.getter.Cleanup()
+	}
+	if l.archive != nil {
+		l.archive.cleanup()
+	}
 }

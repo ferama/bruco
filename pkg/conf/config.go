@@ -43,6 +43,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 
 	fileHandler, err := config.loader.LoadFunction(fileURL)
 	if err != nil {
+		config.loader.Cleanup()
 		return nil, err
 	}
 	defer fileHandler.Close()
@@ -58,7 +59,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 	decoder := yaml.NewDecoder(fileHandler)
 	err = decoder.Decode(&cfgFile)
 	if err != nil {
-		return nil, err
+		return config, err
 	}
 
 	// source
@@ -80,7 +81,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 		yaml.Unmarshal(m, c)
 		config.Source = c
 	default:
-		return nil, fmt.Errorf("invalid source kind: %s", sourceKind)
+		return config, fmt.Errorf("invalid source kind: %s", sourceKind)
 	}
 
 	// sink
