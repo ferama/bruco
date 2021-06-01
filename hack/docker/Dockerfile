@@ -4,5 +4,5 @@ COPY . .
 RUN go build -o /bruco .
 
 # Final docker image
-FROM ubuntu:latest
+FROM python:latest
 COPY --from=gobuilder /bruco /usr/local/bin/bruco
