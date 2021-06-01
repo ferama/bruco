@@ -1,5 +1,4 @@
 import os
-import pathlib
 import sys
 import json
 import importlib
@@ -16,10 +15,10 @@ class Response:
 class Context: 
     def __init__(self, worker_name):
         root = logging.getLogger()
-        root.setLevel(logging.DEBUG)
+        root.setLevel(logging.INFO)
 
         handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.DEBUG)
+        handler.setLevel(logging.INFO)
         formatter = logging.Formatter(f"%(asctime)s ({worker_name}): %(levelname)s %(message)s", "%Y/%m/%d %H:%M:%S")
         handler.setFormatter(formatter)
         root.addHandler(handler)
