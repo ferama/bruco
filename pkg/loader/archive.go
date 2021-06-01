@@ -24,6 +24,7 @@ func newArchive(path string) *archive {
 	return a
 }
 
+// if its an archive, extract it. If not get the orginal path
 func (a *archive) getResourcePath() (string, error) {
 	ext := filepath.Ext(a.sourcePath)
 	var path string

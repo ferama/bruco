@@ -2,8 +2,6 @@ package conf
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"path/filepath"
 
 	"github.com/ferama/bruco/pkg/loader"
@@ -18,24 +16,32 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Config keeps bruco config information and helps to load them
+// It also get the processor code if needed and does all the preparation
+// required for the application to run properly
 type Config struct {
 	Processor *processor.ProcessorConf
 	Source    source.SourceConf
 	Sink      sink.SinkConf
 
+	// WorkingDir is the directory where the config file resides
 	WorkingDir string
 
 	loader *loader.Loader
 }
 
-// LoadConfig parses the [config].yaml file and loads its values
-// into the Config struct
+// LoadConfig search for a config.yaml file and parses it
+// The config.yaml file could be the first bruco command line argument
+// Another option is if bruco is called with an url scheme.
+// In that case if the path is a zip archive for example, this function
+// will loads and extracts its contents and will search for a config.yaml
+// there.
 func LoadConfig(fileURL string) (*Config, error) {
 	config := &Config{
 		loader: loader.NewLoader(),
 	}
 
-	fileHandler, err := config.findConfig(fileURL)
+	fileHandler, err := config.loader.GetConfig(fileURL)
 	if err != nil {
 		return nil, err
 	}
@@ -104,44 +110,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 	return config, nil
 }
 
-func (c *Config) findConfig(fileURL string) (*os.File, error) {
-	var fileHandler *os.File
-	var err error
-
-	filePath, err := c.loader.Load(fileURL)
-	if err != nil {
-		return nil, err
-	}
-
-	fileHandler, err = os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	fi, err := fileHandler.Stat()
-	if err != nil {
-		return nil, err
-	}
-	if fi.IsDir() {
-		// it's a directory
-		path := filepath.Join(filePath, "config.yaml")
-		fileHandler.Close()
-		fileHandler, err = os.Open(path)
-
-		if err != nil {
-			entries, _ := ioutil.ReadDir(filePath)
-			if len(entries) > 0 {
-				path := filepath.Join(filePath, entries[0].Name(), "config.yaml")
-				fileHandler.Close()
-				fileHandler, err = os.Open(path)
-				if err != nil {
-					return nil, err
-				}
-			}
-		}
-	}
-	return fileHandler, nil
-}
-
+// Cleanup removes temprary files
 func (c *Config) Cleanup() {
 	c.loader.Cleanup()
 }
