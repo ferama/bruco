@@ -42,7 +42,7 @@ func runPip(workingDir string) error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
-			log.Fatalf("%s", err)
+			return err
 		}
 	}
 

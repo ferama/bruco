@@ -107,7 +107,9 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, error) {
 		}
 	}
 
-	runPip(filepath.Dir(fileHandler.Name()))
+	if err := runPip(filepath.Dir(fileHandler.Name())); err != nil {
+		return nil, err
+	}
 
 	// If fileURL is not a directory I'm assuming that I'm running bruco
 	// against a config.yaml directly
