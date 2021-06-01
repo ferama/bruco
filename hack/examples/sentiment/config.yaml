@@ -1,0 +1,7 @@
+processor:
+  handlerPath: .
+  moduleName: handler
+  workers: 2
+
+source:
+  kind: http

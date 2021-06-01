@@ -66,7 +66,7 @@ class Wrapper:
                 else:
                     out = {
                         "key": "",
-                        "data": response,
+                        "data": json.dumps(response),
                         "contentType": "application/json",
                         "error": ""
                     }
