@@ -43,7 +43,6 @@ func (s *NatsSource) consume() {
 				Value:     msg.Data,
 			}
 			resolveChan := s.MessageHandler(outMsg)
-			// resolveChan := make(chan processor.Response)
 			go func(ch chan processor.Response) {
 				response := <-ch
 				if response.Error != "" {

@@ -36,7 +36,7 @@ func (l *Loader) load(resourceURL string) (string, error) {
 	}
 	switch lower := strings.ToLower(parsed.Scheme); lower {
 	case "":
-		// no scheme. Its a local file
+		// no scheme. It's a local file
 		path = fmt.Sprintf("%s%s", parsed.Host, parsed.Path)
 	case "http", "https":
 		path, err = l.httpDownload(resourceURL)
@@ -48,7 +48,7 @@ func (l *Loader) load(resourceURL string) (string, error) {
 		return "", err
 	}
 	archive := newArchive(path)
-	// if its an archive, extract it. If not get the orginal path
+	// if it's an archive, extract it. If not get the orginal path
 	path, err = archive.getResourcePath()
 	l.archive = archive
 
@@ -96,6 +96,8 @@ func (l *Loader) GetConfig(fileURL string) (*os.File, error) {
 					// config file not found
 					return nil, err
 				}
+			} else {
+				return nil, err
 			}
 		}
 	}

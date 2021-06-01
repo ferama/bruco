@@ -22,11 +22,14 @@ type Python struct {
 }
 
 // NewPython creates a python instance
-func NewPython(name string, availableWorkers chan *Python,
-	wrapperPath string, handlerPath string,
-	moduleName string, env []EnvVar, workingDir string) *Python {
-	ch, _ := channel.NewChannel()
+func NewPython(name string,
+	availableWorkers chan *Python,
+	wrapperPath string,
+	handlerPath string,
+	moduleName string,
+	env []EnvVar, workingDir string) *Python {
 
+	ch, _ := channel.NewChannel()
 	pythonPath := "python3"
 	if !filepath.IsAbs(handlerPath) {
 		handlerPath = filepath.Join(workingDir, handlerPath)
@@ -102,7 +105,7 @@ func (p *Python) handleOutput() {
 	}
 }
 
-// HandleEvent writes to python process stdin
+// HandleEvent writes to python process socket channel
 func (p *Python) handleEvent(data []byte) error {
 	return p.ch.Write(data)
 }

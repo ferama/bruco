@@ -35,20 +35,12 @@ func NewPool(cfg *ProcessorConf, workingDir string) *Pool {
 	}
 	log.Printf("[PROCESSOR] unpacked wrapper to %s", file.Name())
 
-	// loader := loader.NewLoader()
-	// path, err := loader.Load(cfg.HandlerURL)
-	// if err != nil {
-	// 	log.Fatalf("[PROCESSOR] unable to load handler: %s", err)
-	// }
-	// log.Println("####", path)
-
 	pool := &Pool{
 		pythonMap:        make(map[string]*Python),
 		availableWorkers: make(chan *Python, cfg.Workers),
 		wrapperPath:      file.Name(),
 		handlerPath:      cfg.HandlerPath,
 		env:              cfg.Env,
-		// loader:           loader,
 	}
 	pool.moduleName = pool.resolveModuleName(cfg.ModuleName)
 	for i := 0; i < cfg.Workers; i++ {
@@ -91,7 +83,6 @@ func (p *Pool) HandleEventAsync(data []byte, callback EventCallback) {
 
 func (p *Pool) HandleEvent(data []byte) (*Response, error) {
 	if len(data) == 0 {
-		// log.Println("[PROCESSOR] WARNING: got 0 len event")
 		return nil, fmt.Errorf("can't handle zero len event")
 	}
 	python := <-p.availableWorkers
@@ -115,13 +106,11 @@ func (p *Pool) createPythonInstance(name string, workingDir string) *Python {
 	)
 	p.pythonMap[name] = python
 
-	// log.Println("New python instance started: " + name)
 	return python
 }
 
 // Destroy ...
 func (p *Pool) Destroy() {
-	// p.loader.Cleanup()
 	os.Remove(p.wrapperPath)
 	for key, python := range p.pythonMap {
 		python.kill()
