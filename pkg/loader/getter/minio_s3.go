@@ -36,7 +36,7 @@ func (g *S3Getter) Download(resourceURL string) (string, error) {
 
 	secure := true
 	parsed, _ := url.Parse(resourceURL)
-	if parsed.Scheme == "s3" {
+	if strings.ToLower(parsed.Scheme) == "s3" {
 		secure = false
 	}
 
@@ -55,7 +55,8 @@ func (g *S3Getter) Download(resourceURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := s3Client.FGetObject(context.Background(), bucket, objectKey, file.Name(), minio.GetObjectOptions{}); err != nil {
+	if err := s3Client.FGetObject(context.Background(),
+		bucket, objectKey, file.Name(), minio.GetObjectOptions{}); err != nil {
 		return "", err
 	}
 
