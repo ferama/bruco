@@ -48,6 +48,9 @@ func (l *Loader) Load(resourceURL string) (string, error) {
 	archive := newArchive(path)
 	path, err = archive.getResourcePath()
 	l.archive = archive
+
+	runPip(path)
+
 	return path, err
 }
 

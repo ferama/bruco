@@ -33,9 +33,6 @@ func (a *archive) getResourcePath() (string, error) {
 	case ".zip":
 		path, err = a.unzip(a.sourcePath)
 		a.toCleanPath = path
-		// TODO: check for a requirements.txt file inside the destination
-		// folder and run pip install against it if exists
-		// path = "./hack/examples/basic"
 	default:
 		path = a.sourcePath
 
