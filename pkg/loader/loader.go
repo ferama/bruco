@@ -93,6 +93,7 @@ func (l *Loader) GetConfig(fileURL string) (*os.File, error) {
 				fileHandler.Close()
 				fileHandler, err = os.Open(path)
 				if err != nil {
+					// config file not found
 					return nil, err
 				}
 			}
@@ -101,8 +102,8 @@ func (l *Loader) GetConfig(fileURL string) (*os.File, error) {
 
 	runPip(filepath.Dir(fileHandler.Name()))
 
-	// fileURL is not a directory.
-	// Assuming that I'm running brugo against a config.yaml directly
+	// If fileURL is not a directory I'm assuming that I'm running bruco
+	// against a config.yaml directly
 	return fileHandler, nil
 }
 
