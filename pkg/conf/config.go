@@ -43,8 +43,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 
 	fileHandler, err := config.loader.LoadFunction(fileURL)
 	if err != nil {
-		config.loader.Cleanup()
-		return nil, err
+		return config, err
 	}
 	defer fileHandler.Close()
 
