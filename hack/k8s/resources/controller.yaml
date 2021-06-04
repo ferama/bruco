@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bruco
+  namespace: bruco
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bruco-role
+  namespace: bruco
+rules:
+- apiGroups: [""]
+  resources: ["services", "pods", "events"]
+  verbs: ["*"]
+- apiGroups: ["apps", "extensions"]
+  resources: ["deployments"]
+  verbs: ["*"]
+- apiGroups: ["brucocontroller.ferama.github.com"]
+  resources: ["brucos", "brucos/status"]
+  verbs: ["*"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bruco
+subjects:
+- kind: ServiceAccount
+  name: bruco
+  namespace: bruco
+roleRef:
+  kind: ClusterRole
+  name: bruco-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bruco-controller
+  labels:
+    app: bruco
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bruco
+  template:
+    metadata:
+      labels:
+        app: bruco
+    spec:
+      containers:
+        - name: bruco-controller
+          image: ferama/bruco-controller:dev
+      serviceAccountName: bruco
+      restartPolicy: Always

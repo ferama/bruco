@@ -15,6 +15,6 @@ bash "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client,informer,lister" \
 rsync --recursive \
  --remove-source-files \
  --ignore-times \
- "${SCRIPT_ROOT}/github.com/ferama/bruco/pkg" "${SCRIPT_ROOT}"
+ "${SCRIPT_ROOT}/github.com/ferama/bruco/" "${SCRIPT_ROOT}"
 
 rm -rf "${SCRIPT_ROOT}/github.com"
