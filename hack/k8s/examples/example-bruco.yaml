@@ -1,0 +1,8 @@
+apiVersion: brucocontroller.ferama.github.com/v1alpha1
+kind: Bruco
+metadata:
+  name: example-bruco
+spec:
+  replicas: 1
+  functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
+  # functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/basic.zip
