@@ -12,7 +12,7 @@ import (
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	kubecontroller "github.com/ferama/bruco/pkg/kube/controller"
+	brucocontroller "github.com/ferama/bruco/pkg/kube/controller"
 	clientset "github.com/ferama/bruco/pkg/kube/generated/clientset/versioned"
 	informers "github.com/ferama/bruco/pkg/kube/generated/informers/externalversions"
 	"github.com/ferama/bruco/pkg/kube/signals"
@@ -48,7 +48,7 @@ func main() {
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	brucoInformerFactory := informers.NewSharedInformerFactory(brucoClient, time.Second*30)
 
-	controller := kubecontroller.NewController(kubeClient, brucoClient,
+	controller := brucocontroller.NewController(kubeClient, brucoClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
 		kubeInformerFactory.Core().V1().Services(),
 		brucoInformerFactory.Brucocontroller().V1alpha1().Brucos())
