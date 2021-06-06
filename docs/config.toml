@@ -1,0 +1,12 @@
+baseURL = "https://ferama.github.io/bruco/"
+languageCode = "en-us"
+title = "Bruco"
+
+[Menus]
+    main = [
+        {Name = "1 Introduction", URL = "/introduction/"},
+    ]
+
+[params]
+    themeColor = "theme-base-0b"
+    description = "Easy build streaming pipelines. Handle business logic in python"
