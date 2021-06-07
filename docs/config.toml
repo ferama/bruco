@@ -2,10 +2,28 @@ baseURL = "https://ferama.github.io/bruco/"
 languageCode = "en-us"
 title = "Bruco"
 
-[Menus]
-    main = [
-        {Name = "1 Introduction", URL = "/introduction/"},
-    ]
+[menu]
+    [[menu.main]]
+        identifier = "getting-started"
+        name = "Getting started"
+        url = "/getting-started"
+        weight = 1
+    [[menu.main]]
+        identifier = "kubernetes"
+        name = "Kubernetes controller"
+        url = "/kubernetes"
+        weight = 2
+    # [[menu.main]]
+    #     parent = "kubernetes"
+    #     identifier = "prova"
+    #     name = "prova"
+    #     url = "/prova"
+    #     weight = 2
+    [[menu.main]]
+        identifier = "github"
+        name = "<i class='fab fa-github'></i> Bruco on Github"
+        url = "https://github.com/ferama/bruco"
+        weight = 100
 
 [params]
     themeColor = "theme-base-0b"
