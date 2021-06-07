@@ -5,20 +5,50 @@ title = "Bruco"
 [menu]
     [[menu.main]]
         identifier = "getting-started"
-        name = "Getting started"
+        name = "Getting started on k8s"
         url = "/getting-started"
         weight = 1
-    [[menu.main]]
-        identifier = "kubernetes"
-        name = "Kubernetes controller"
-        url = "/kubernetes"
-        weight = 2
     # [[menu.main]]
-    #     parent = "kubernetes"
-    #     identifier = "prova"
-    #     name = "prova"
-    #     url = "/prova"
+    #     identifier = "sources"
+    #     name = "Sources"
+    #     url = "#"
     #     weight = 2
+    # [[menu.main]]
+    #     identifier = "http-source"
+    #     parent = "sources"
+    #     name = "HTTP"
+    #     url = "http-source"
+    #     weight = 1
+    #  [[menu.main]]
+    #     identifier = "kafka-source"
+    #     parent = "sources"
+    #     name = "Kafka"
+    #     url = "kafka-source"
+    #     weight = 1
+    # [[menu.main]]
+    #     identifier = "nats-source"
+    #     parent = "sources"
+    #     name = "NATS"
+    #     url = "nats-source"
+    #     weight = 1
+    # [[menu.main]]
+    #     identifier = "sinks"
+    #     name = "Sinks"
+    #     url = "#"
+    #     weight = 3
+    #  [[menu.main]]
+    #     identifier = "kafka-sink"
+    #     parent = "sinks"
+    #     name = "Kafka"
+    #     url = "kafka-sink"
+    #     weight = 1
+    # [[menu.main]]
+    #     identifier = "nats-sink"
+    #     parent = "sinks"
+    #     name = "NATS"
+    #     url = "nats-sink"
+    #     weight = 1
+   
     [[menu.main]]
         identifier = "github"
         name = "<i class='fab fa-github'></i> Bruco on Github"
@@ -27,4 +57,5 @@ title = "Bruco"
 
 [params]
     themeColor = "theme-base-0b"
-    description = "Easy build streaming pipelines. Handle business logic in python"
+    description = " "
+    # description = "Easy build streaming pipelines. Handle business logic in python"
