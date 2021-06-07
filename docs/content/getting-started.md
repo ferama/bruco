@@ -28,7 +28,7 @@ spec:
 
 but before that, you need to create the custom resource definition on k8s and to deploy the controller supporting the custom resource.
 
-Follow this following steps to do that.
+Follow this steps to do that.
 
 ## k8s controller deployment
 ```sh
@@ -42,7 +42,7 @@ $ kubectl -n bruco apply -f https://raw.githubusercontent.com/ferama/bruco/main/
 $ kubectl -n bruco apply -f https://raw.githubusercontent.com/ferama/bruco/main/hack/k8s/resources/controller.yaml
 ```
 
-The result should be something like this that means that the bruco controller is up and running:
+The result should be something like this, that means that the bruco controller is up and running:
 
 ```sh
 $ kubectl -n bruco get pods

@@ -3,7 +3,7 @@ title: "Bruco"
 date: 2021-06-05T08:21:52+02:00
 draft: false
 ---
-Bruco is a tool meant to build streaming pipelines steps easily. It is **kubernetes** native citizen. Each step could be indeed, defined using a Kubernetes custom resource. You don't even need to manually build a docker image. 
+Bruco is a tool meant to build streaming pipelines steps easily. It is **kubernetes** native citizen. Each step can be indeed, defined using a Kubernetes custom resource. You don't even need to manually build a docker image. 
 
 The pipeline is event-driven and implements the `source -> processor -> sink` paradigm.
 
