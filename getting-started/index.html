@@ -5,7 +5,7 @@
 <span style=color:#f92672>spec</span>:
   <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>1</span>
   <span style=color:#f92672>functionURL</span>: <span style=color:#ae81ff>https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip</span>
-</code></pre></div><p>but before that, you need to create the custom resource definition on k8s and to deploy the controller supporting the custom resource.</p><p>Follow this following steps to do that.</p><h2 id=k8s-controller-deployment>k8s controller deployment</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#75715e># create a new k8s namespace for bruco</span>
+</code></pre></div><p>but before that, you need to create the custom resource definition on k8s and to deploy the controller supporting the custom resource.</p><p>Follow this steps to do that.</p><h2 id=k8s-controller-deployment>k8s controller deployment</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#75715e># create a new k8s namespace for bruco</span>
 $ kubectl create ns bruco
 
 <span style=color:#75715e># create the custom resource</span>
@@ -13,7 +13,7 @@ $ kubectl -n bruco apply -f https://raw.githubusercontent.com/ferama/bruco/main/
 
 <span style=color:#75715e># deploy the bruco controller</span>
 $ kubectl -n bruco apply -f https://raw.githubusercontent.com/ferama/bruco/main/hack/k8s/resources/controller.yaml
-</code></pre></div><p>The result should be something like this that means that the bruco controller is up and running:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl -n bruco get pods
+</code></pre></div><p>The result should be something like this, that means that the bruco controller is up and running:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl -n bruco get pods
 NAME                               READY   STATUS    RESTARTS   AGE
 bruco-controller-5fd955d49-7p6xt   1/1     Running   <span style=color:#ae81ff>0</span>          37s
 </code></pre></div><h2 id=demo-function-deployment>demo function deployment</h2><p>Now you are ready to deploy your first bruco function. Create a file named <strong>example-bruco.yaml</strong> and copy and paste the example bruco function definition:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>brucocontroller.ferama.github.com/v1alpha1</span>
