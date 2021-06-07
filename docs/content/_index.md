@@ -7,7 +7,7 @@ Bruco is a tool meant to build streaming pipelines steps easily. It is **kuberne
 
 The pipeline is event-driven and implements the `source -> processor -> sink` paradigm.
 
-The processor is meant for `stream` transformation beteween the **source** and the **sink**. Bruco supports writing processor logic using the `python` scripting language.
+The processor is meant for `stream` transformation between the **source** and the **sink**. Bruco supports writing processor logic using the `python` scripting language.
 
 #### Sources
 

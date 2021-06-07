@@ -1,6 +1,6 @@
 baseURL = "https://ferama.github.io/bruco/"
 languageCode = "en-us"
-title = "Bruco"
+title = "Bruco 🐛"
 
 [menu]
     [[menu.main]]
@@ -8,54 +8,37 @@ title = "Bruco"
         name = "Getting started on k8s"
         url = "/getting-started"
         weight = 1
-    # [[menu.main]]
-    #     identifier = "sources"
-    #     name = "Sources"
-    #     url = "#"
-    #     weight = 2
-    # [[menu.main]]
-    #     identifier = "http-source"
-    #     parent = "sources"
-    #     name = "HTTP"
-    #     url = "http-source"
-    #     weight = 1
-    #  [[menu.main]]
-    #     identifier = "kafka-source"
-    #     parent = "sources"
-    #     name = "Kafka"
-    #     url = "kafka-source"
-    #     weight = 1
-    # [[menu.main]]
-    #     identifier = "nats-source"
-    #     parent = "sources"
-    #     name = "NATS"
-    #     url = "nats-source"
-    #     weight = 1
-    # [[menu.main]]
-    #     identifier = "sinks"
-    #     name = "Sinks"
-    #     url = "#"
-    #     weight = 3
-    #  [[menu.main]]
-    #     identifier = "kafka-sink"
-    #     parent = "sinks"
-    #     name = "Kafka"
-    #     url = "kafka-sink"
-    #     weight = 1
-    # [[menu.main]]
-    #     identifier = "nats-sink"
-    #     parent = "sinks"
-    #     name = "NATS"
-    #     url = "nats-sink"
-    #     weight = 1
+     [[menu.main]]
+        identifier = "config"
+        name = "Config"
+        url = "/config-file"
+        weight = 2
+    [[menu.main]]
+        parent = "config"
+        identifier = "sources"
+        name = "Sources"
+        url = "/sources"
+        weight = 1
+    [[menu.main]]
+        parent = "config"
+        identifier = "sinks"
+        name = "Sinks"
+        url = "/sinks"
+        weight = 2
+    [[menu.main]]
+        parent = "config"
+        identifier = "processor"
+        name = "Processor"
+        url = "/processor"
+        weight = 3
    
     [[menu.main]]
         identifier = "github"
-        name = "<i class='fab fa-github'></i> Bruco on Github"
+        name = "<i class='fab fa-github'></i> Star Bruco on Github"
         url = "https://github.com/ferama/bruco"
         weight = 100
 
 [params]
-    themeColor = "theme-base-0b"
-    description = " "
-    # description = "Easy build streaming pipelines. Handle business logic in python"
+    themeColor = "theme-base-0d"
+    # description = " "
+    description = "Easy build streaming pipelines. Handle business logic in python"
