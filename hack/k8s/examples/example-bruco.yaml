@@ -1,4 +1,4 @@
-apiVersion: brucocontroller.ferama.github.com/v1alpha1
+apiVersion: bruco.ferama.github.io/v1alpha1
 kind: Bruco
 metadata:
   name: example-bruco

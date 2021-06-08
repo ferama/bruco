@@ -17,7 +17,7 @@ Bruco defines a custom resource for its functions. The resource is called guess 
 
 This is a sample resource instance that you will able to create:
 ```yaml
-apiVersion: brucocontroller.ferama.github.com/v1alpha1
+apiVersion: bruco.ferama.github.com/v1alpha1
 kind: Bruco
 metadata:
   name: example-bruco
@@ -53,7 +53,7 @@ bruco-controller-5fd955d49-7p6xt   1/1     Running   0          37s
 ## demo function deployment
 Now you are ready to deploy your first bruco function. Create a file named **example-bruco.yaml** and copy and paste the example bruco function definition:
 ```yaml
-apiVersion: brucocontroller.ferama.github.com/v1alpha1
+apiVersion: bruco.ferama.github.com/v1alpha1
 kind: Bruco
 metadata:
   name: example-bruco
