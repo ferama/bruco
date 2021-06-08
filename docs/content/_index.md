@@ -6,7 +6,12 @@ draft: false
 # Bruco
 Bruco is a tool meant to build streaming pipelines steps easily. It is **kubernetes** native citizen. Each step can be indeed, defined using a Kubernetes custom resource. You don't even need to manually build a docker image. 
 
-The pipeline is event-driven and implements the `source -> processor -> sink` paradigm.
+The pipeline is event-driven and implements the paradigm:
+
+{{<mermaid align="center">}}
+graph LR;
+    A[Source] --> B(Processor) --> C[Sink]
+{{< /mermaid >}}
 
 The processor is meant for `stream` transformation between the **source** and the **sink**. Bruco supports writing processor logic using the `python` scripting language.
 
