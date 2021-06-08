@@ -1,0 +1,3 @@
+[submodule "docs/themes/hugo-theme-learn"]
+	path = docs/themes/hugo-theme-learn
+	url = git@github.com:ferama/hugo-theme-learn.git
