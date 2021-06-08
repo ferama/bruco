@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ferama/bruco/pkg/common"
 	"github.com/ferama/bruco/pkg/loader/getter"
 )
 
@@ -107,8 +108,12 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, error) {
 		}
 	}
 
-	if err := runPip(filepath.Dir(fileHandler.Name())); err != nil {
-		return nil, err
+	disablePip, _ := common.GetenvBool("BRUCO_DISABLE_PIP")
+
+	if !disablePip {
+		if err := runPip(filepath.Dir(fileHandler.Name())); err != nil {
+			return nil, err
+		}
 	}
 
 	// If fileURL is not a directory I'm assuming that I'm running bruco

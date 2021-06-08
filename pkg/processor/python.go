@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/ferama/bruco/pkg/channel"
+	"github.com/ferama/bruco/pkg/common"
 )
 
 // Python class
@@ -30,7 +31,10 @@ func NewPython(name string,
 	env []EnvVar, workingDir string) *Python {
 
 	ch, _ := channel.NewChannel()
-	pythonPath := "python3"
+	pythonPath, err := common.FindPython()
+	if err != nil {
+		log.Fatalln("can't find python executable")
+	}
 	if !filepath.IsAbs(handlerPath) {
 		handlerPath = filepath.Join(workingDir, handlerPath)
 	}

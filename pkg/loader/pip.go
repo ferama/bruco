@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/ferama/bruco/pkg/common"
 )
 
 func fileExists(path string) bool {
@@ -15,28 +17,15 @@ func fileExists(path string) bool {
 	}
 }
 
-func findPip() (string, error) {
-	var path string
-	var err error
-	path, err = exec.LookPath("pip3")
-	if err != nil {
-		path, err = exec.LookPath("pip")
-		if err != nil {
-			return "", err
-		}
-	}
-	return path, nil
-}
-
 func runPip(workingDir string) error {
 	reqPath := filepath.Join(workingDir, "requirements.txt")
 	if fileExists(reqPath) {
-		pipPath, err := findPip()
+		pythonPath, err := common.FindPython()
 		if err != nil {
-			log.Println("could not find pip: ", err)
+			log.Fatalln("can't find python executable")
 		}
 		args := []string{
-			pipPath, "install", "-r", reqPath,
+			pythonPath, "-m", "pip", "install", "-r", reqPath,
 		}
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdout = os.Stdout
