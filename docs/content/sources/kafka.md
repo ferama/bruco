@@ -1,33 +1,9 @@
 ---
-title: "Sources"
-date: 2021-06-07T15:01:21+02:00
+title: "Kafka"
+weight: 1
 draft: false
 ---
 
-Actually bruco supports the following event sources:
-
-1. HTTP
-2. Apache Kafka
-3. NATS
-
-## The HTTP event source
-
-The http source is activated using the `http` kind
-
-| yaml path | description |
-| ----------- | ----------- |
-| ignoreProcessorResponse | If true doen't return the prcessed value to the http caller |
-| port | the port the http server listens too (do not change this if you are using bruco with k8s) |
-
-Example:
-```yaml
-source:
-  kind: http
-  ignoreProcessorResponse: false
-  # port: 8090
-```
-
-## The Kafka event source
 Bruco uses Sarama (https://github.com/Shopify/sarama) as kafka library.
 
 The kafka source is activated using the `kafka` kind
@@ -108,17 +84,4 @@ with 6 paritions and two consumers, you will get:
 ```
   c1: [p0, p2, p4]
   c2: [p1, p3, p5]
-```
-
-
-## The NATS event source
-The NATS source is activated using the `nats` kind
-
-Example:
-```yaml
-source:
-  kind: nats
-  serverUrl: localhost:4222
-  queueGroup: test
-  subject: in.sub
 ```

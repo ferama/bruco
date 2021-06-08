@@ -1,15 +1,8 @@
 ---
-title: "Sinks"
-date: 2021-06-07T15:01:29+02:00
+title: "Kafka"
+weight: 1
 draft: false
 ---
-
-Actually bruco supports the following event sinks:
-
-1. Apache Kafka
-2. NATS
-
-## The kafka sink
 
 The kafka sink is activated using the `kafka` kind
 
@@ -27,17 +20,3 @@ sink:
   partitioner: hash
 
 ```
-
-## The nats sink
-
-The nats sink is activated using the `nats` kind
-
-Example:
-```yaml
-# OPTIONAL: you can have a source and a processor without a sink
-sink:
-  kind: nats
-  serverUrl: localhost:4222
-  subject: out.sub
-```
-

@@ -1,44 +1,27 @@
 baseURL = "https://ferama.github.io/bruco/"
 languageCode = "en-us"
 title = "Bruco 🐛"
+theme = "hugo-theme-learn"
 
-[menu]
-    [[menu.main]]
-        identifier = "getting-started"
-        name = "Getting started on k8s"
-        url = "/getting-started"
-        weight = 1
-     [[menu.main]]
-        identifier = "config"
-        name = "Config"
-        url = "/config-file"
-        weight = 2
-    [[menu.main]]
-        parent = "config"
-        identifier = "sources"
-        name = "Sources"
-        url = "/sources"
-        weight = 1
-    [[menu.main]]
-        parent = "config"
-        identifier = "sinks"
-        name = "Sinks"
-        url = "/sinks"
-        weight = 2
-    [[menu.main]]
-        parent = "config"
-        identifier = "processor"
-        name = "Processor"
-        url = "/processor"
-        weight = 3
-   
-    [[menu.main]]
-        identifier = "github"
-        name = "<i class='fab fa-github'></i> Star Bruco on Github"
-        url = "https://github.com/ferama/bruco"
-        weight = 100
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[Languages]
+[Languages.en]
+landingPageURL = "/bruco"
+landingPageName = "<i class='fas fa-home'></i> Home"
+# make template think this is a multilang site
+[Languages.it]
+
+[[menu.shortcuts]]
+name = "<i class='fab fa-fw fa-github'></i> GitHub repo"
+identifier = "ds"
+url = "https://github.com/ferama/bruco"
+weight = 10
 
 [params]
-    themeColor = "theme-base-0d"
-    # description = " "
-    description = "Easy build streaming pipelines. Handle business logic in python"
+disableLanguageSwitchingButton = true
+disableLandingPage = false
+disableNextPrev = true
+author = "Marco Ferragina"
+description = "Easy build streaming pipelines. Handle business logic in python"
