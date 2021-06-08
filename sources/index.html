@@ -2,7 +2,7 @@
   <span style=color:#f92672>kind</span>: <span style=color:#ae81ff>http</span>
   <span style=color:#f92672>ignoreProcessorResponse</span>: <span style=color:#66d9ef>false</span>
   <span style=color:#75715e># port: 8090</span>
-</code></pre></div><h2 id=the-kafka-event-source>The Kafka event source</h2><p>The kafka source is activated using the <code>kafka</code> kind</p><table><thead><tr><th>yaml path</th><th>description</th></tr></thead><tbody><tr><td>brokers</td><td>a list of kafka brokers to connect to</td></tr><tr><td>topics</td><td>a list of topics to subscribe too</td></tr><tr><td>offset</td><td>the initial offset where the kafka consumer will start to consume</td></tr><tr><td>consumerGroup</td><td>the kafka consumer group</td></tr><tr><td>balanceStrategy</td><td>the kafka consumer balance startegy</td></tr><tr><td>&mldr;</td><td>&mldr;</td></tr></tbody></table><p>Example:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>source</span>:
+</code></pre></div><h2 id=the-kafka-event-source>The Kafka event source</h2><p>Bruco uses Sarama (<a href=https://github.com/Shopify/sarama>https://github.com/Shopify/sarama</a>) as kafka library.</p><p>The kafka source is activated using the <code>kafka</code> kind</p><table><thead><tr><th>yaml path</th><th>description</th></tr></thead><tbody><tr><td>brokers</td><td>a list of kafka brokers to connect to</td></tr><tr><td>topics</td><td>a list of topics to subscribe too</td></tr><tr><td>offset</td><td>the initial offset where the kafka consumer will start to consume</td></tr><tr><td>consumerGroup</td><td>the kafka consumer group</td></tr><tr><td>balanceStrategy</td><td>the kafka consumer balance startegy</td></tr><tr><td>fireAndForget</td><td>if true, the first available worker will process a message, regardless of partition message order</td></tr><tr><td>rebalanceTimeout</td><td>kafka rebalanceTimeout</td></tr><tr><td>channelBufferSize</td><td>the size of consumer buffer</td></tr><tr><td>fetchDefaultBytes</td><td>the size in bytes to fetch from the topic each time</td></tr></tbody></table><p>Example:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>source</span>:
   <span style=color:#f92672>kind</span>: <span style=color:#ae81ff>kafka</span>
   <span style=color:#f92672>brokers</span>:
     - <span style=color:#ae81ff>localhost:9092</span>
@@ -26,7 +26,23 @@
   <span style=color:#f92672>channelBufferSize</span>: <span style=color:#ae81ff>256</span>
   <span style=color:#75715e># OPTIONAL: default 1024 * 1024. Again for slow consumers you could keep this low</span>
   <span style=color:#f92672>fetchDefaultBytes</span>: <span style=color:#ae81ff>8</span>
-</code></pre></div><h2 id=the-nats-event-source>The NATS event source</h2><p>The NATS source is activated using the <code>nats</code> kind</p><p>Example:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>source</span>:
+</code></pre></div><h4 id=understand-the-balancestrategy-param>Understand the balanceStrategy param</h4><p>The balanceStrategy param, let&rsquo;s you config the partition assignment strategy per consumer.
+There are 3 available values:</p><ol><li>Range (default)</li><li>Stick</li><li>Round Robin</li></ol><p>The <strong>range</strong> partition strategy, distributes partitions to consumers as ranges.
+Example:
+suppose you have 6 partitions and two consumers. The assignement strategy will be like:</p><pre><code>  c1: [p0, p1, p2]
+  c2: [p3, p4, p5]
+</code></pre><p>The <strong>sticky</strong> partition strategy, will assign partitions to consumer trying to keep previous assignment while at the sime time obtaining a balanced partition distribution.
+Example:
+you have 6 partition and two consumer with an assignment like:</p><pre><code>  c1: [p0, p2, p4]
+  c2: [p1, p3, p5]
+</code></pre><p>then a new consumer joins the consumer group. You could obtain a reassigment like:</p><pre><code>  c1: [p0, p2]
+  c2: [p1, p3]
+  c3: [p4, p5]
+</code></pre><p>The <strong>roundrobin</strong> partition strategy, uses a round robin parition distribution between consumers.
+Example:
+with 6 paritions and two consumers, you will get:</p><pre><code>  c1: [p0, p2, p4]
+  c2: [p1, p3, p5]
+</code></pre><h2 id=the-nats-event-source>The NATS event source</h2><p>The NATS source is activated using the <code>nats</code> kind</p><p>Example:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>source</span>:
   <span style=color:#f92672>kind</span>: <span style=color:#ae81ff>nats</span>
   <span style=color:#f92672>serverUrl</span>: <span style=color:#ae81ff>localhost:4222</span>
   <span style=color:#f92672>queueGroup</span>: <span style=color:#ae81ff>test</span>
