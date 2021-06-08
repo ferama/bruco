@@ -16,14 +16,14 @@ type Bruco struct {
 	Status BrucoStatus `json:"status"`
 }
 
-// BrucoSpec is the spec for a Foo resource
+// BrucoSpec is the spec for a Bruco resource
 type BrucoSpec struct {
 	Replicas       *int32 `json:"replicas"`
 	ContainerImage string `json:"containerImage,omitempty"`
 	FunctionURL    string `json:"functionURL"`
 }
 
-// BrucoStatus is the status for a Foo resource
+// BrucoStatus is the status for a Bruco resource
 type BrucoStatus struct {
 	AvailableReplicas  int32  `json:"availableReplicas"`
 	CurrentFunctionURL string `json:"currentFunctionURL"`
@@ -31,7 +31,7 @@ type BrucoStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// BrucoList is a list of Foo resources
+// BrucoList is a list of Bruco resources
 type BrucoList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
