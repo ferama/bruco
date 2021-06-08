@@ -25,5 +25,6 @@ Follows the actually supported sinks list
 1. Apache Kafka
 2. NATS
 
-### Tutorial
+{{% notice note %}}
 Follow the [Getting Started]({{< ref "basic/getting-started" >}}) guide for a beginner tutorial.
+{{% /notice %}}
