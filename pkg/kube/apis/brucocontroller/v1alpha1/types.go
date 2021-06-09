@@ -27,9 +27,8 @@ type BrucoSpec struct {
 
 // BrucoStatus is the status for a Bruco resource
 type BrucoStatus struct {
-	AvailableReplicas  int32           `json:"availableReplicas"`
-	CurrentFunctionURL string          `json:"currentFunctionURL"`
-	CurrentEnv         []corev1.EnvVar `json:"currentEnv"`
+	AvailableReplicas int32 `json:"availableReplicas"`
+	CurrentGeneration int64 `json:"currentGeneration"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

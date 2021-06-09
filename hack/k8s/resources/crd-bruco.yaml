@@ -42,17 +42,8 @@ spec:
               properties:
                 availableReplicas:
                   type: integer
-                currentFunctionURL:
-                  type: string
-                env:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      value:
-                        type: string
+                currentGeneration:
+                  type: integer
       # subresources for the custom resource
       subresources:
         # enables the status subresource

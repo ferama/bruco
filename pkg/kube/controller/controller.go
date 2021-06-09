@@ -334,7 +334,8 @@ func (c *Controller) syncHandler(key string) error {
 
 	}
 
-	if bruco.Spec.FunctionURL != bruco.Status.CurrentFunctionURL {
+	// restarts deployment on new generation
+	if bruco.Generation != bruco.Status.CurrentGeneration {
 		deployment = newDeployment(bruco)
 		if deployment.Annotations == nil {
 			deployment.Annotations = make(map[string]string)
@@ -344,7 +345,6 @@ func (c *Controller) syncHandler(key string) error {
 			Deployments(bruco.Namespace).
 			Update(context.TODO(), deployment, metav1.UpdateOptions{})
 	}
-	// TODO: check if env vars are different and restart the deployment if true
 
 	// If an error occurs during Update, we'll requeue the item so we can
 	// attempt processing again later. This could have been caused by a
@@ -370,7 +370,7 @@ func (c *Controller) updateBrucoStatus(bruco *brucov1alpha1.Bruco, deployment *a
 	// Or create a copy manually for better performance
 	brucoCopy := bruco.DeepCopy()
 	brucoCopy.Status.AvailableReplicas = deployment.Status.AvailableReplicas
-	brucoCopy.Status.CurrentFunctionURL = bruco.Spec.FunctionURL
+	brucoCopy.Status.CurrentGeneration = bruco.Generation
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Bruco resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
