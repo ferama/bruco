@@ -28,6 +28,15 @@ spec:
                   type: string
                 functionURL:
                   type: string
+                env:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
             status:
               type: object
               properties:
@@ -35,6 +44,15 @@ spec:
                   type: integer
                 currentFunctionURL:
                   type: string
+                env:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
       # subresources for the custom resource
       subresources:
         # enables the status subresource

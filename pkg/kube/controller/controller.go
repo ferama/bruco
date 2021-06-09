@@ -334,7 +334,6 @@ func (c *Controller) syncHandler(key string) error {
 
 	}
 
-	// TODO: test this. handle restart
 	if bruco.Spec.FunctionURL != bruco.Status.CurrentFunctionURL {
 		deployment = newDeployment(bruco)
 		if deployment.Annotations == nil {
@@ -345,6 +344,8 @@ func (c *Controller) syncHandler(key string) error {
 			Deployments(bruco.Namespace).
 			Update(context.TODO(), deployment, metav1.UpdateOptions{})
 	}
+	// TODO: check if env vars are different and restart the deployment if true
+
 	// If an error occurs during Update, we'll requeue the item so we can
 	// attempt processing again later. This could have been caused by a
 	// temporary network failure, or any other transient reason.
@@ -498,6 +499,7 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 							Name:    "bruco",
 							Image:   containerImage,
 							Command: []string{"bruco", bruco.Spec.FunctionURL},
+							Env:     bruco.Spec.Env,
 						},
 					},
 				},
