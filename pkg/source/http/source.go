@@ -47,13 +47,14 @@ func (s *HttpSource) httpHandler(w http.ResponseWriter, r *http.Request) {
 		Value:     []byte(body),
 	}
 	resolveChan := s.MessageHandler(outMsg)
-	response := <-resolveChan
-	if response.Error != "" {
-		log.Printf("[HTTP-SOURCE] processor error: %s", response.Error)
-		http.Error(w, fmt.Sprintf("processor error: %s", response.Error), 400)
-		return
-	}
+
 	if !s.ignoreProcessorResponse {
+		response := <-resolveChan
+		if response.Error != "" {
+			log.Printf("[HTTP-SOURCE] processor error: %s", response.Error)
+			http.Error(w, fmt.Sprintf("processor error: %s", response.Error), 400)
+			return
+		}
 		if response.ContentType != "" {
 			w.Header().Add("Content-Type", response.ContentType)
 		}
