@@ -16,7 +16,7 @@ rules:
 - apiGroups: ["apps", "extensions"]
   resources: ["deployments"]
   verbs: ["*"]
-- apiGroups: ["brucocontroller.ferama.github.com"]
+- apiGroups: ["bruco.ferama.github.io"]
   resources: ["brucos", "brucos/status"]
   verbs: ["*"]
 ---
