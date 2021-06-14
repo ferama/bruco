@@ -59,6 +59,12 @@ metadata:
 spec:
   replicas: 1
   functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
+  stream:
+    processor:
+      workers: 2
+    source:
+      kind: http
+      ignoreProcessorResponse: false
 ```
 
 Create the kubernetes resource using:
@@ -68,21 +74,9 @@ $ kubectl -n bruco apply -f example-bruco.yaml
 
 What is happening here, is that bruco will load the package at `https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip` and starts a deployment with one replicas that will run the **sentiment** function. The zip file contains all the required config and logic to run the function. In this example the zip file contains:
 
-1. A bruco `config.yaml` file
-2. An `handler.py` with the function logic
-3. A `requirements.txt` file that declares the funcion dependencies
+1. An `handler.py` with the function logic
+2. A `requirements.txt` file that declares the funcion dependencies
 
-The `config.yaml` file contains the bruco function config about source, sink and processor. For this example it is very simple:
-
-```yaml
-processor:
-  handlerPath: .
-  moduleName: handler
-  workers: 2
-
-source:
-  kind: http
-```  
 The handler is a very simple python function:
 ```python
 from textblob import TextBlob
