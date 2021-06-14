@@ -51,6 +51,7 @@ func main() {
 	controller := brucocontroller.NewController(kubeClient, brucoClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
 		kubeInformerFactory.Core().V1().Services(),
+		kubeInformerFactory.Core().V1().ConfigMaps(),
 		brucoInformerFactory.Brucocontroller().V1alpha1().Brucos())
 
 	// notice that there is no need to run Start methods in a separate goroutine. (i.e. go kubeInformerFactory.Start(stopCh)

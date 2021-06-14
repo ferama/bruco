@@ -76,6 +76,7 @@ func (f *fixture) newController() (*Controller, informers.SharedInformerFactory,
 	c := NewController(f.kubeclient, f.client,
 		k8sI.Apps().V1().Deployments(),
 		k8sI.Core().V1().Services(),
+		k8sI.Core().V1().ConfigMaps(),
 		i.Brucocontroller().V1alpha1().Brucos())
 
 	c.brucosSynced = alwaysReady

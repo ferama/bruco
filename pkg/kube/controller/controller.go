@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -62,6 +61,8 @@ type Controller struct {
 	servicesSynced    cache.InformerSynced
 	brucosLister      listers.BrucoLister
 	brucosSynced      cache.InformerSynced
+	configMapLister   corelisters.ConfigMapLister
+	configMapSynced   cache.InformerSynced
 
 	// workqueue is a rate limited work queue. This is used to queue work to be
 	// processed instead of performing it as soon as a change happens. This
@@ -80,6 +81,7 @@ func NewController(
 	brucoclientset clientset.Interface,
 	deploymentInformer appsinformers.DeploymentInformer,
 	serviceInformer coreinformers.ServiceInformer,
+	configMapInformer coreinformers.ConfigMapInformer,
 	brucoInformer informers.BrucoInformer) *Controller {
 
 	// Create event broadcaster
@@ -99,6 +101,8 @@ func NewController(
 		deploymentsSynced: deploymentInformer.Informer().HasSynced,
 		servicesLister:    serviceInformer.Lister(),
 		servicesSynced:    serviceInformer.Informer().HasSynced,
+		configMapLister:   configMapInformer.Lister(),
+		configMapSynced:   configMapInformer.Informer().HasSynced,
 		brucosLister:      brucoInformer.Lister(),
 		brucosSynced:      brucoInformer.Informer().HasSynced,
 		workqueue:         workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Brucos"),
@@ -140,6 +144,21 @@ func NewController(
 			newSvc := new.(*corev1.Service)
 			oldSvc := old.(*corev1.Service)
 			if newSvc.ResourceVersion == oldSvc.ResourceVersion {
+				// Periodic resync will send update events for all known Deployments.
+				// Two different versions of the same Deployment will always have different RVs.
+				return
+			}
+			controller.handleObject(new)
+		},
+		DeleteFunc: controller.handleObject,
+	})
+
+	configMapInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: controller.handleObject,
+		UpdateFunc: func(old, new interface{}) {
+			newCm := new.(*corev1.ConfigMap)
+			oldCm := old.(*corev1.ConfigMap)
+			if newCm.ResourceVersion == oldCm.ResourceVersion {
 				// Periodic resync will send update events for all known Deployments.
 				// Two different versions of the same Deployment will always have different RVs.
 				return
@@ -269,8 +288,8 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
-	b, _ := yaml.Marshal(bruco.Spec.Conf)
-	log.Printf("\n%s", string(b))
+	// b, _ := yaml.Marshal(bruco.Spec.Conf)
+	// log.Printf("\n%s", string(b))
 
 	deploymentName := bruco.Name
 	if deploymentName == "" {
@@ -322,6 +341,27 @@ func (c *Controller) syncHandler(key string) error {
 
 	if !metav1.IsControlledBy(service, bruco) {
 		msg := fmt.Sprintf(MessageResourceExists, service.Name)
+		c.recorder.Event(bruco, corev1.EventTypeWarning, ErrResourceExists, msg)
+		return fmt.Errorf(msg)
+	}
+
+	configMapName := bruco.Name
+	// Get the service with the name specified in Bruco.spec
+	configMap, err := c.configMapLister.ConfigMaps(bruco.Namespace).Get(configMapName)
+	// If the resource doesn't exist, we'll create it
+	if errors.IsNotFound(err) {
+		configMap, err = c.kubeclientset.
+			CoreV1().
+			ConfigMaps(bruco.Namespace).
+			Create(context.TODO(), newConfigmap(bruco), metav1.CreateOptions{})
+	}
+	if err != nil {
+		log.Println("###### ", err)
+		return err
+	}
+
+	if !metav1.IsControlledBy(configMap, bruco) {
+		msg := fmt.Sprintf(MessageResourceExists, configMap.Name)
 		c.recorder.Event(bruco, corev1.EventTypeWarning, ErrResourceExists, msg)
 		return fmt.Errorf(msg)
 	}
