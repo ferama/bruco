@@ -23,6 +23,12 @@ metadata:
 spec:
   replicas: 1
   functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
+  stream:
+    processor:
+      workers: 2
+    source:
+      kind: http
+      ignoreProcessorResponse: false
 ```
 
 but before that, you need to create the custom resource definition on k8s and to deploy the controller supporting the custom resource.
