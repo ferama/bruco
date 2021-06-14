@@ -1,6 +1,8 @@
 package kubecontroller
 
 import (
+	"fmt"
+
 	brucov1alpha1 "github.com/ferama/bruco/pkg/kube/apis/brucocontroller/v1alpha1"
 	"gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
@@ -9,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// Creates a new config map with bruco config
 func newConfigmap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	b, _ := yaml.Marshal(bruco.Spec.Conf)
 	confMap := make(map[string]string)
@@ -65,6 +68,8 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 	if bruco.Spec.ContainerImage != "" {
 		containerImage = bruco.Spec.ContainerImage
 	}
+
+	configName := fmt.Sprintf("bruco-config-%d", bruco.Generation)
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      bruco.Name,
@@ -90,7 +95,7 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 							Command: []string{"bruco", bruco.Spec.FunctionURL},
 							VolumeMounts: []corev1.VolumeMount{
 								{
-									Name:      "bruco-config",
+									Name:      configName,
 									MountPath: "/bruco",
 								},
 							},
@@ -98,7 +103,7 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 					},
 					Volumes: []corev1.Volume{
 						{
-							Name: "bruco-config",
+							Name: configName,
 							VolumeSource: corev1.VolumeSource{
 								ConfigMap: &corev1.ConfigMapVolumeSource{
 									LocalObjectReference: corev1.LocalObjectReference{

@@ -3,13 +3,12 @@ kind: Bruco
 metadata:
   name: example-bruco
 spec:
-  replicas: 1
-  # functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
-  functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/basic.zip
-  conf:
+  replicas: 2
+  functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
+  # functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/basic.zip
+  stream:
     processor:
-      workers: 1
+      workers: 2
     source:
       kind: http
-      port: 8080
-      ignoreProcessorResponse: true
+      ignoreProcessorResponse: false

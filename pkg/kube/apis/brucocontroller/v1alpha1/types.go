@@ -27,7 +27,7 @@ type BrucoSpec struct {
 	Replicas       *int32    `json:"replicas"`
 	ContainerImage string    `json:"containerImage,omitempty"`
 	FunctionURL    string    `json:"functionURL"`
-	Conf           BrucoConf `json:"conf"`
+	Conf           BrucoConf `json:"stream"`
 }
 
 // BrucoStatus is the status for a Bruco resource

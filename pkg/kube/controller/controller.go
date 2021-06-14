@@ -379,14 +379,21 @@ func (c *Controller) syncHandler(key string) error {
 
 	// restarts deployment on new generation
 	if bruco.Generation != bruco.Status.CurrentGeneration {
-		deployment = newDeployment(bruco)
-		if deployment.Annotations == nil {
-			deployment.Annotations = make(map[string]string)
+		_, err = c.kubeclientset.
+			CoreV1().
+			ConfigMaps(bruco.Namespace).
+			Update(context.TODO(), newConfigmap(bruco), metav1.UpdateOptions{})
+
+		if err == nil {
+			deployment = newDeployment(bruco)
+			if deployment.Annotations == nil {
+				deployment.Annotations = make(map[string]string)
+			}
+			deployment.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().Format(time.RFC3339)
+			deployment, err = c.kubeclientset.AppsV1().
+				Deployments(bruco.Namespace).
+				Update(context.TODO(), deployment, metav1.UpdateOptions{})
 		}
-		deployment.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().Format(time.RFC3339)
-		deployment, err = c.kubeclientset.AppsV1().
-			Deployments(bruco.Namespace).
-			Update(context.TODO(), deployment, metav1.UpdateOptions{})
 	}
 
 	// If an error occurs during Update, we'll requeue the item so we can

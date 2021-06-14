@@ -1,6 +1,0 @@
-processor:
-  workers: 1
-
-source:
-  kind: http
-  ignoreProcessorResponse: false

@@ -21,15 +21,13 @@ spec:
               type: object
               # x-kubernetes-preserve-unknown-fields: true
               properties:
-                deploymentName:
-                  type: string
                 replicas:
                   type: integer
                 containerImage:
                   type: string
                 functionURL:
                   type: string
-                conf:
+                stream:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
                   
