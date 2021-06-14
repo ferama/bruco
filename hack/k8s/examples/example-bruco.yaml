@@ -6,8 +6,10 @@ spec:
   replicas: 1
   # functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
   functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/basic.zip
-  env:
-    - name: var1
-      value: var1_value
-    # - name: var2
-    #   value: var2_value
+  conf:
+    processor:
+      workers: 1
+    source:
+      kind: http
+      port: 8080
+      ignoreProcessorResponse: true

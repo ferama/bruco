@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -267,6 +268,9 @@ func (c *Controller) syncHandler(key string) error {
 
 		return err
 	}
+
+	b, _ := yaml.Marshal(bruco.Spec.Conf)
+	log.Printf("\n%s", string(b))
 
 	deploymentName := bruco.Name
 	if deploymentName == "" {

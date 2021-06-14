@@ -19,6 +19,7 @@ spec:
           properties:
             spec:
               type: object
+              # x-kubernetes-preserve-unknown-fields: true
               properties:
                 deploymentName:
                   type: string
@@ -28,15 +29,10 @@ spec:
                   type: string
                 functionURL:
                   type: string
-                env:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      value:
-                        type: string
+                conf:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  
             status:
               type: object
               properties:

@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -17,12 +16,18 @@ type Bruco struct {
 	Status BrucoStatus `json:"status"`
 }
 
+type BrucoConf map[string]interface{}
+
+func (c *BrucoConf) DeepCopy() *BrucoConf {
+	return &BrucoConf{}
+}
+
 // BrucoSpec is the spec for a Bruco resource
 type BrucoSpec struct {
-	Replicas       *int32          `json:"replicas"`
-	ContainerImage string          `json:"containerImage,omitempty"`
-	FunctionURL    string          `json:"functionURL"`
-	Env            []corev1.EnvVar `json:"env"`
+	Replicas       *int32    `json:"replicas"`
+	ContainerImage string    `json:"containerImage,omitempty"`
+	FunctionURL    string    `json:"functionURL"`
+	Conf           BrucoConf `json:"conf"`
 }
 
 // BrucoStatus is the status for a Bruco resource

@@ -3,11 +3,11 @@ package natssource
 import "github.com/ferama/bruco/pkg/source"
 
 type NatsSourceConf struct {
-	source.SourceConfCommon `yaml:",inline"`
+	source.SourceConfCommon `json:",inline" yaml:",inline"`
 
-	ServerUrl  string `yaml:"serverUrl"`
-	QueueGroup string `yaml:"queueGroup"`
-	Subject    string `yaml:"subject"`
+	ServerUrl  string `json:"serverUrl" yaml:"serverUrl"`
+	QueueGroup string `json:"queueGroup" yaml:"queueGroup"`
+	Subject    string `json:"subject" yaml:"subject"`
 }
 
 func (s *NatsSourceConf) IsFireAndForget() bool {
