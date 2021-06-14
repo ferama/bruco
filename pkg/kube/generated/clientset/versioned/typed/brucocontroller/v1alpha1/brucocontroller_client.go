@@ -8,22 +8,22 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-type BrucocontrollerV1alpha1Interface interface {
+type BrucoV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	BrucosGetter
 }
 
-// BrucocontrollerV1alpha1Client is used to interact with features provided by the brucocontroller.ferama.github.com group.
-type BrucocontrollerV1alpha1Client struct {
+// BrucoV1alpha1Client is used to interact with features provided by the bruco.ferama.github.io group.
+type BrucoV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *BrucocontrollerV1alpha1Client) Brucos(namespace string) BrucoInterface {
+func (c *BrucoV1alpha1Client) Brucos(namespace string) BrucoInterface {
 	return newBrucos(c, namespace)
 }
 
-// NewForConfig creates a new BrucocontrollerV1alpha1Client for the given config.
-func NewForConfig(c *rest.Config) (*BrucocontrollerV1alpha1Client, error) {
+// NewForConfig creates a new BrucoV1alpha1Client for the given config.
+func NewForConfig(c *rest.Config) (*BrucoV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -32,12 +32,12 @@ func NewForConfig(c *rest.Config) (*BrucocontrollerV1alpha1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &BrucocontrollerV1alpha1Client{client}, nil
+	return &BrucoV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new BrucocontrollerV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new BrucoV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *BrucocontrollerV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *BrucoV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -45,9 +45,9 @@ func NewForConfigOrDie(c *rest.Config) *BrucocontrollerV1alpha1Client {
 	return client
 }
 
-// New creates a new BrucocontrollerV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *BrucocontrollerV1alpha1Client {
-	return &BrucocontrollerV1alpha1Client{c}
+// New creates a new BrucoV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *BrucoV1alpha1Client {
+	return &BrucoV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -65,7 +65,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *BrucocontrollerV1alpha1Client) RESTClient() rest.Interface {
+func (c *BrucoV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

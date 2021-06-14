@@ -52,7 +52,7 @@ func main() {
 		kubeInformerFactory.Apps().V1().Deployments(),
 		kubeInformerFactory.Core().V1().Services(),
 		kubeInformerFactory.Core().V1().ConfigMaps(),
-		brucoInformerFactory.Brucocontroller().V1alpha1().Brucos())
+		brucoInformerFactory.Bruco().V1alpha1().Brucos())
 
 	// notice that there is no need to run Start methods in a separate goroutine. (i.e. go kubeInformerFactory.Start(stopCh)
 	// Start method is non-blocking and runs all registered informers in a dedicated goroutine.

@@ -12,7 +12,7 @@ import (
 )
 
 // Creates a new config map with bruco config
-func newConfigmap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
+func newConfigMap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	b, _ := yaml.Marshal(bruco.Spec.Conf)
 	confMap := make(map[string]string)
 

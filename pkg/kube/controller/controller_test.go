@@ -36,6 +36,7 @@ type fixture struct {
 	brucoLister      []*brucocontroller.Bruco
 	deploymentLister []*apps.Deployment
 	serviceLister    []*corev1.Service
+	configMapLister  []*corev1.ConfigMap
 	// Actions expected to happen on the client.
 	kubeactions []core.Action
 	actions     []core.Action
@@ -60,8 +61,8 @@ func newBruco(name string, replicas *int32) *brucocontroller.Bruco {
 			Namespace: metav1.NamespaceDefault,
 		},
 		Spec: brucocontroller.BrucoSpec{
-			// DeploymentName: fmt.Sprintf("%s-deployment", name),
 			Replicas: replicas,
+			Conf:     map[string]interface{}{},
 		},
 	}
 }
@@ -77,14 +78,14 @@ func (f *fixture) newController() (*Controller, informers.SharedInformerFactory,
 		k8sI.Apps().V1().Deployments(),
 		k8sI.Core().V1().Services(),
 		k8sI.Core().V1().ConfigMaps(),
-		i.Brucocontroller().V1alpha1().Brucos())
+		i.Bruco().V1alpha1().Brucos())
 
 	c.brucosSynced = alwaysReady
 	c.deploymentsSynced = alwaysReady
 	c.recorder = &record.FakeRecorder{}
 
 	for _, f := range f.brucoLister {
-		i.Brucocontroller().V1alpha1().Brucos().Informer().GetIndexer().Add(f)
+		i.Bruco().V1alpha1().Brucos().Informer().GetIndexer().Add(f)
 	}
 
 	for _, d := range f.deploymentLister {
@@ -93,6 +94,10 @@ func (f *fixture) newController() (*Controller, informers.SharedInformerFactory,
 
 	for _, s := range f.serviceLister {
 		k8sI.Core().V1().Services().Informer().GetIndexer().Add(s)
+	}
+
+	for _, s := range f.configMapLister {
+		k8sI.Core().V1().ConfigMaps().Informer().GetIndexer().Add(s)
 	}
 
 	return c, i, k8sI
@@ -211,6 +216,8 @@ func filterInformerActions(actions []core.Action) []core.Action {
 				action.Matches("watch", "brucos") ||
 				action.Matches("list", "deployments") ||
 				action.Matches("watch", "deployments") ||
+				action.Matches("list", "configmaps") ||
+				action.Matches("watch", "configmaps") ||
 				action.Matches("list", "services") ||
 				action.Matches("watch", "services")) {
 			continue
@@ -227,6 +234,10 @@ func (f *fixture) expectCreateDeploymentAction(d *apps.Deployment) {
 
 func (f *fixture) expectCreateServiceAction(s *corev1.Service) {
 	f.kubeactions = append(f.kubeactions, core.NewCreateAction(schema.GroupVersionResource{Resource: "services"}, s.Namespace, s))
+}
+
+func (f *fixture) expectCreateConfigMapAction(s *corev1.ConfigMap) {
+	f.kubeactions = append(f.kubeactions, core.NewCreateAction(schema.GroupVersionResource{Resource: "configmaps"}, s.Namespace, s))
 }
 
 func (f *fixture) expectUpdateDeploymentAction(d *apps.Deployment) {
@@ -262,6 +273,9 @@ func TestCreatesDeployment(t *testing.T) {
 	expService := newService(bruco)
 	f.expectCreateServiceAction(expService)
 
+	expConfigMap := newConfigMap(bruco)
+	f.expectCreateConfigMapAction(expConfigMap)
+
 	f.run(getKey(bruco, t))
 }
 
@@ -270,11 +284,13 @@ func TestDoNothing(t *testing.T) {
 	bruco := newBruco("test", int32Ptr(1))
 	d := newDeployment(bruco)
 	s := newService(bruco)
+	c := newConfigMap(bruco)
 
 	f.brucoLister = append(f.brucoLister, bruco)
 	f.objects = append(f.objects, bruco)
 	f.deploymentLister = append(f.deploymentLister, d)
 	f.serviceLister = append(f.serviceLister, s)
+	f.configMapLister = append(f.configMapLister, c)
 	f.kubeobjects = append(f.kubeobjects, d)
 	f.kubeobjects = append(f.kubeobjects, s)
 
@@ -287,6 +303,7 @@ func TestUpdateBruco(t *testing.T) {
 	bruco := newBruco("test", int32Ptr(1))
 	d := newDeployment(bruco)
 	s := newService(bruco)
+	c := newConfigMap(bruco)
 
 	// Update replicas
 	bruco.Spec.Replicas = int32Ptr(2)
@@ -296,6 +313,7 @@ func TestUpdateBruco(t *testing.T) {
 	f.objects = append(f.objects, bruco)
 	f.deploymentLister = append(f.deploymentLister, d)
 	f.serviceLister = append(f.serviceLister, s)
+	f.configMapLister = append(f.configMapLister, c)
 	f.kubeobjects = append(f.kubeobjects, d)
 
 	f.expectUpdateBrucoStatusAction(bruco)

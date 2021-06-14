@@ -353,7 +353,7 @@ func (c *Controller) syncHandler(key string) error {
 		configMap, err = c.kubeclientset.
 			CoreV1().
 			ConfigMaps(bruco.Namespace).
-			Create(context.TODO(), newConfigmap(bruco), metav1.CreateOptions{})
+			Create(context.TODO(), newConfigMap(bruco), metav1.CreateOptions{})
 	}
 	if err != nil {
 		log.Println("###### ", err)
@@ -382,7 +382,7 @@ func (c *Controller) syncHandler(key string) error {
 		_, err = c.kubeclientset.
 			CoreV1().
 			ConfigMaps(bruco.Namespace).
-			Update(context.TODO(), newConfigmap(bruco), metav1.UpdateOptions{})
+			Update(context.TODO(), newConfigMap(bruco), metav1.UpdateOptions{})
 
 		if err == nil {
 			deployment = newDeployment(bruco)
@@ -426,7 +426,7 @@ func (c *Controller) updateBrucoStatus(bruco *brucov1alpha1.Bruco, deployment *a
 	// UpdateStatus will not allow changes to the Spec of the resource,
 	// which is ideal for ensuring nothing other than resource status has been updated.
 	_, err := c.brucoclientset.
-		BrucocontrollerV1alpha1().
+		BrucoV1alpha1().
 		Brucos(bruco.Namespace).
 		UpdateStatus(context.TODO(), brucoCopy, metav1.UpdateOptions{})
 	return err

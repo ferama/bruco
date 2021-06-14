@@ -41,7 +41,7 @@ type brucos struct {
 }
 
 // newBrucos returns a Brucos
-func newBrucos(c *BrucocontrollerV1alpha1Client, namespace string) *brucos {
+func newBrucos(c *BrucoV1alpha1Client, namespace string) *brucos {
 	return &brucos{
 		client: c.RESTClient(),
 		ns:     namespace,
