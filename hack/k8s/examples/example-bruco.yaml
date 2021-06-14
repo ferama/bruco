@@ -3,7 +3,8 @@ kind: Bruco
 metadata:
   name: example-bruco
 spec:
-  replicas: 2
+  replicas: 1
+  containerImage: localhost:32000/bruco:latest
   functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
   # functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/basic.zip
   stream:

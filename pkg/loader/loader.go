@@ -3,6 +3,7 @@ package loader
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -85,6 +86,7 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 	}
 
 	workingDir = filepath.Dir(fileHandler.Name())
+	foundInPackage := true
 	if fi.IsDir() {
 		// it's a directory. Search for a config.yaml inside
 		path := filepath.Join(filePath, "config.yaml")
@@ -106,8 +108,7 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 				fileHandler.Close()
 				fileHandler, err = os.Open(path)
 				if err != nil {
-					// config file not found
-					return nil, workingDir, err
+					foundInPackage = false
 				}
 			} else {
 				return nil, workingDir, err
@@ -115,10 +116,14 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 		}
 	}
 
-	// if container conf exists, taker precedence
+	// if container conf exists, take precedence
 	containerConf, err := os.Open(containerConfigPath)
 	if err == nil {
 		fileHandler = containerConf
+	} else {
+		if !foundInPackage {
+			return nil, workingDir, err
+		}
 	}
 
 	disablePip, _ := common.GetenvBool("BRUCO_DISABLE_PIP")
@@ -128,7 +133,7 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 			return nil, "", err
 		}
 	}
-
+	log.Printf("fh: %s, wd: %s", fileHandler.Name(), workingDir)
 	// If fileURL is not a directory I'm assuming that I'm running bruco
 	// against a config.yaml directly
 	return fileHandler, workingDir, nil
