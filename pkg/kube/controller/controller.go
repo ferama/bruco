@@ -10,7 +10,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	appsinformers "k8s.io/client-go/informers/apps/v1"
@@ -62,6 +61,8 @@ type Controller struct {
 	servicesSynced    cache.InformerSynced
 	brucosLister      listers.BrucoLister
 	brucosSynced      cache.InformerSynced
+	configMapLister   corelisters.ConfigMapLister
+	configMapSynced   cache.InformerSynced
 
 	// workqueue is a rate limited work queue. This is used to queue work to be
 	// processed instead of performing it as soon as a change happens. This
@@ -80,6 +81,7 @@ func NewController(
 	brucoclientset clientset.Interface,
 	deploymentInformer appsinformers.DeploymentInformer,
 	serviceInformer coreinformers.ServiceInformer,
+	configMapInformer coreinformers.ConfigMapInformer,
 	brucoInformer informers.BrucoInformer) *Controller {
 
 	// Create event broadcaster
@@ -99,6 +101,8 @@ func NewController(
 		deploymentsSynced: deploymentInformer.Informer().HasSynced,
 		servicesLister:    serviceInformer.Lister(),
 		servicesSynced:    serviceInformer.Informer().HasSynced,
+		configMapLister:   configMapInformer.Lister(),
+		configMapSynced:   configMapInformer.Informer().HasSynced,
 		brucosLister:      brucoInformer.Lister(),
 		brucosSynced:      brucoInformer.Informer().HasSynced,
 		workqueue:         workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Brucos"),
@@ -140,6 +144,21 @@ func NewController(
 			newSvc := new.(*corev1.Service)
 			oldSvc := old.(*corev1.Service)
 			if newSvc.ResourceVersion == oldSvc.ResourceVersion {
+				// Periodic resync will send update events for all known Deployments.
+				// Two different versions of the same Deployment will always have different RVs.
+				return
+			}
+			controller.handleObject(new)
+		},
+		DeleteFunc: controller.handleObject,
+	})
+
+	configMapInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: controller.handleObject,
+		UpdateFunc: func(old, new interface{}) {
+			newCm := new.(*corev1.ConfigMap)
+			oldCm := old.(*corev1.ConfigMap)
+			if newCm.ResourceVersion == oldCm.ResourceVersion {
 				// Periodic resync will send update events for all known Deployments.
 				// Two different versions of the same Deployment will always have different RVs.
 				return
@@ -269,6 +288,9 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
+	// b, _ := yaml.Marshal(bruco.Spec.Conf)
+	// log.Printf("\n%s", string(b))
+
 	deploymentName := bruco.Name
 	if deploymentName == "" {
 		// We choose to absorb the error here as the worker would requeue the
@@ -323,6 +345,27 @@ func (c *Controller) syncHandler(key string) error {
 		return fmt.Errorf(msg)
 	}
 
+	configMapName := bruco.Name
+	// Get the service with the name specified in Bruco.spec
+	configMap, err := c.configMapLister.ConfigMaps(bruco.Namespace).Get(configMapName)
+	// If the resource doesn't exist, we'll create it
+	if errors.IsNotFound(err) {
+		configMap, err = c.kubeclientset.
+			CoreV1().
+			ConfigMaps(bruco.Namespace).
+			Create(context.TODO(), newConfigMap(bruco), metav1.CreateOptions{})
+	}
+	if err != nil {
+		log.Println("###### ", err)
+		return err
+	}
+
+	if !metav1.IsControlledBy(configMap, bruco) {
+		msg := fmt.Sprintf(MessageResourceExists, configMap.Name)
+		c.recorder.Event(bruco, corev1.EventTypeWarning, ErrResourceExists, msg)
+		return fmt.Errorf(msg)
+	}
+
 	// If this number of the replicas on the Bruco resource is specified, and the
 	// number does not equal the current desired replicas on the Deployment, we
 	// should update the Deployment resource.
@@ -336,14 +379,21 @@ func (c *Controller) syncHandler(key string) error {
 
 	// restarts deployment on new generation
 	if bruco.Generation != bruco.Status.CurrentGeneration {
-		deployment = newDeployment(bruco)
-		if deployment.Annotations == nil {
-			deployment.Annotations = make(map[string]string)
+		_, err = c.kubeclientset.
+			CoreV1().
+			ConfigMaps(bruco.Namespace).
+			Update(context.TODO(), newConfigMap(bruco), metav1.UpdateOptions{})
+
+		if err == nil {
+			deployment = newDeployment(bruco)
+			if deployment.Annotations == nil {
+				deployment.Annotations = make(map[string]string)
+			}
+			deployment.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().Format(time.RFC3339)
+			deployment, err = c.kubeclientset.AppsV1().
+				Deployments(bruco.Namespace).
+				Update(context.TODO(), deployment, metav1.UpdateOptions{})
 		}
-		deployment.Annotations["kubectl.kubernetes.io/restartedAt"] = time.Now().Format(time.RFC3339)
-		deployment, err = c.kubeclientset.AppsV1().
-			Deployments(bruco.Namespace).
-			Update(context.TODO(), deployment, metav1.UpdateOptions{})
 	}
 
 	// If an error occurs during Update, we'll requeue the item so we can
@@ -376,7 +426,7 @@ func (c *Controller) updateBrucoStatus(bruco *brucov1alpha1.Bruco, deployment *a
 	// UpdateStatus will not allow changes to the Spec of the resource,
 	// which is ideal for ensuring nothing other than resource status has been updated.
 	_, err := c.brucoclientset.
-		BrucocontrollerV1alpha1().
+		BrucoV1alpha1().
 		Brucos(bruco.Namespace).
 		UpdateStatus(context.TODO(), brucoCopy, metav1.UpdateOptions{})
 	return err
@@ -434,76 +484,5 @@ func (c *Controller) handleObject(obj interface{}) {
 
 		c.enqueueBruco(bruco)
 		return
-	}
-}
-
-func newService(bruco *brucov1alpha1.Bruco) *corev1.Service {
-	labels := map[string]string{
-		"app":        "bruco",
-		"controller": bruco.Name,
-	}
-	return &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
-			Namespace: bruco.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
-			},
-		},
-		Spec: corev1.ServiceSpec{
-			Ports: []corev1.ServicePort{
-				{
-					Port: 8080,
-					TargetPort: intstr.IntOrString{
-						IntVal: 8080,
-					},
-				},
-			},
-			Selector: labels,
-		},
-	}
-}
-
-// newDeployment creates a new Deployment for a Bruco resource. It also sets
-// the appropriate OwnerReferences on the resource so handleObject can discover
-// the Bruco resource that 'owns' it.
-func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
-	labels := map[string]string{
-		"app":        "bruco",
-		"controller": bruco.Name,
-	}
-	containerImage := "ferama/bruco:dev"
-	if bruco.Spec.ContainerImage != "" {
-		containerImage = bruco.Spec.ContainerImage
-	}
-	return &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
-			Namespace: bruco.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
-			},
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: bruco.Spec.Replicas,
-			Selector: &metav1.LabelSelector{
-				MatchLabels: labels,
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: labels,
-				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Name:    "bruco",
-							Image:   containerImage,
-							Command: []string{"bruco", bruco.Spec.FunctionURL},
-							Env:     bruco.Spec.Env,
-						},
-					},
-				},
-			},
-		},
 	}
 }

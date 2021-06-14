@@ -8,17 +8,17 @@ import (
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeBrucocontrollerV1alpha1 struct {
+type FakeBrucoV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeBrucocontrollerV1alpha1) Brucos(namespace string) v1alpha1.BrucoInterface {
+func (c *FakeBrucoV1alpha1) Brucos(namespace string) v1alpha1.BrucoInterface {
 	return &FakeBrucos{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeBrucocontrollerV1alpha1) RESTClient() rest.Interface {
+func (c *FakeBrucoV1alpha1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

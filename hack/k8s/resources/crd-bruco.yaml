@@ -19,9 +19,8 @@ spec:
           properties:
             spec:
               type: object
+              # x-kubernetes-preserve-unknown-fields: true
               properties:
-                deploymentName:
-                  type: string
                 replicas:
                   type: integer
                 containerImage:
@@ -37,6 +36,10 @@ spec:
                         type: string
                       value:
                         type: string
+                stream:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  
             status:
               type: object
               properties:

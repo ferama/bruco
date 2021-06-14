@@ -36,9 +36,9 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=brucocontroller.ferama.github.com, Version=v1alpha1
+	// Group=bruco.ferama.github.io, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("brucos"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Brucocontroller().V1alpha1().Brucos().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Bruco().V1alpha1().Brucos().Informer()}, nil
 
 	}
 

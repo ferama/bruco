@@ -2,7 +2,6 @@ package conf
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/ferama/bruco/pkg/loader"
 	"github.com/ferama/bruco/pkg/processor"
@@ -41,13 +40,13 @@ func LoadConfig(fileURL string) (*Config, error) {
 		loader: loader.NewLoader(),
 	}
 
-	fileHandler, err := config.loader.LoadFunction(fileURL)
+	configFileHandler, workingDir, err := config.loader.LoadFunction(fileURL)
 	if err != nil {
 		return config, err
 	}
-	defer fileHandler.Close()
+	defer configFileHandler.Close()
 
-	config.WorkingDir = filepath.Dir(fileHandler.Name())
+	config.WorkingDir = workingDir
 
 	var cfgFile struct {
 		Processor map[string]interface{} `yaml:"processor"`
@@ -55,7 +54,7 @@ func LoadConfig(fileURL string) (*Config, error) {
 		Sink      map[string]interface{} `yaml:"sink"`
 	}
 
-	decoder := yaml.NewDecoder(fileHandler)
+	decoder := yaml.NewDecoder(configFileHandler)
 	err = decoder.Decode(&cfgFile)
 	if err != nil {
 		return config, err

@@ -46,13 +46,13 @@ func NewFilteredBrucoInformer(client versioned.Interface, namespace string, resy
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.BrucocontrollerV1alpha1().Brucos(namespace).List(context.TODO(), options)
+				return client.BrucoV1alpha1().Brucos(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.BrucocontrollerV1alpha1().Brucos(namespace).Watch(context.TODO(), options)
+				return client.BrucoV1alpha1().Brucos(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&brucocontrollerv1alpha1.Bruco{},

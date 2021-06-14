@@ -16,13 +16,13 @@ import (
 
 // FakeBrucos implements BrucoInterface
 type FakeBrucos struct {
-	Fake *FakeBrucocontrollerV1alpha1
+	Fake *FakeBrucoV1alpha1
 	ns   string
 }
 
-var brucosResource = schema.GroupVersionResource{Group: "brucocontroller.ferama.github.com", Version: "v1alpha1", Resource: "brucos"}
+var brucosResource = schema.GroupVersionResource{Group: "bruco.ferama.github.io", Version: "v1alpha1", Resource: "brucos"}
 
-var brucosKind = schema.GroupVersionKind{Group: "brucocontroller.ferama.github.com", Version: "v1alpha1", Kind: "Bruco"}
+var brucosKind = schema.GroupVersionKind{Group: "bruco.ferama.github.io", Version: "v1alpha1", Kind: "Bruco"}
 
 // Get takes name of the bruco, and returns the corresponding bruco object, and an error if there is any.
 func (c *FakeBrucos) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.Bruco, err error) {

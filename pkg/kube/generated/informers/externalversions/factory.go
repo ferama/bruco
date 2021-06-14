@@ -156,9 +156,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Brucocontroller() brucocontroller.Interface
+	Bruco() brucocontroller.Interface
 }
 
-func (f *sharedInformerFactory) Brucocontroller() brucocontroller.Interface {
+func (f *sharedInformerFactory) Bruco() brucocontroller.Interface {
 	return brucocontroller.New(f, f.namespace, f.tweakListOptions)
 }

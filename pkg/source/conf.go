@@ -9,8 +9,8 @@ type SourceConf interface {
 }
 
 type SourceConfCommon struct {
-	Kind          string `yaml:"kind"`
-	FireAndForget bool   `yaml:"fireAndForget"`
+	Kind          string `json:"kind" yaml:"kind"`
+	FireAndForget bool   `json:"fireAndForget" yaml:"fireAndForget"`
 }
 
 func (s *SourceConfCommon) IsFireAndForget() bool {

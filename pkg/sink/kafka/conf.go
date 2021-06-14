@@ -4,10 +4,10 @@ import "github.com/ferama/bruco/pkg/sink"
 
 // KafkaSinkConf ...
 type KafkaSinkConf struct {
-	sink.SinkConfCommon `yaml:",inline"`
+	sink.SinkConfCommon `json:",inline" yaml:",inline"`
 
-	Brokers     []string `yaml:"brokers"`
-	Topic       string   `yaml:"topic"`
-	Partitioner string   `yaml:"partitioner"` // hash, random, manual
-	Partition   string   `yaml:"partition"`   // -1
+	Brokers     []string `json:"brokers" yaml:"brokers"`
+	Topic       string   `json:"topic" yaml:"topic"`
+	Partitioner string   `json:"partitioner" yaml:"partitioner"` // hash, random, manual
+	Partition   string   `json:"partition" yaml:"partition"`     // -1
 }

@@ -17,12 +17,19 @@ type Bruco struct {
 	Status BrucoStatus `json:"status"`
 }
 
+type BrucoConf map[string]interface{}
+
+func (c *BrucoConf) DeepCopy() *BrucoConf {
+	return &BrucoConf{}
+}
+
 // BrucoSpec is the spec for a Bruco resource
 type BrucoSpec struct {
 	Replicas       *int32          `json:"replicas"`
 	ContainerImage string          `json:"containerImage,omitempty"`
 	FunctionURL    string          `json:"functionURL"`
 	Env            []corev1.EnvVar `json:"env"`
+	Conf           BrucoConf       `json:"stream"`
 }
 
 // BrucoStatus is the status for a Bruco resource

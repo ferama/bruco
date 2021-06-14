@@ -4,8 +4,8 @@ package fake
 
 import (
 	clientset "github.com/ferama/bruco/pkg/kube/generated/clientset/versioned"
-	brucocontrollerv1alpha1 "github.com/ferama/bruco/pkg/kube/generated/clientset/versioned/typed/brucocontroller/v1alpha1"
-	fakebrucocontrollerv1alpha1 "github.com/ferama/bruco/pkg/kube/generated/clientset/versioned/typed/brucocontroller/v1alpha1/fake"
+	brucov1alpha1 "github.com/ferama/bruco/pkg/kube/generated/clientset/versioned/typed/brucocontroller/v1alpha1"
+	fakebrucov1alpha1 "github.com/ferama/bruco/pkg/kube/generated/clientset/versioned/typed/brucocontroller/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -60,7 +60,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// BrucocontrollerV1alpha1 retrieves the BrucocontrollerV1alpha1Client
-func (c *Clientset) BrucocontrollerV1alpha1() brucocontrollerv1alpha1.BrucocontrollerV1alpha1Interface {
-	return &fakebrucocontrollerv1alpha1.FakeBrucocontrollerV1alpha1{Fake: &c.Fake}
+// BrucoV1alpha1 retrieves the BrucoV1alpha1Client
+func (c *Clientset) BrucoV1alpha1() brucov1alpha1.BrucoV1alpha1Interface {
+	return &fakebrucov1alpha1.FakeBrucoV1alpha1{Fake: &c.Fake}
 }

@@ -12,6 +12,8 @@ import (
 	"github.com/ferama/bruco/pkg/loader/getter"
 )
 
+const containerConfigPath = "/bruco/config.yaml"
+
 // Loader object will parse the handlerURL and prepare the function
 // to be executed from processor
 type Loader struct {
@@ -62,23 +64,27 @@ func (l *Loader) runGetter(resourceURL string) (string, error) {
 
 // LoadFunction loads the function and returns a pointer to the config yaml
 // file
-func (l *Loader) LoadFunction(fileURL string) (*os.File, error) {
+func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 	var fileHandler *os.File
 	var err error
+	workingDir := ""
 
 	filePath, err := l.runGetter(fileURL)
 	if err != nil {
-		return nil, err
+		return nil, workingDir, err
 	}
 
 	fileHandler, err = os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, workingDir, err
 	}
+
 	fi, err := fileHandler.Stat()
 	if err != nil {
-		return nil, err
+		return nil, workingDir, err
 	}
+
+	workingDir = filepath.Dir(fileHandler.Name())
 	if fi.IsDir() {
 		// it's a directory. Search for a config.yaml inside
 		path := filepath.Join(filePath, "config.yaml")
@@ -95,30 +101,37 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, error) {
 			//
 			entries, _ := ioutil.ReadDir(filePath)
 			if len(entries) > 0 {
-				path := filepath.Join(filePath, entries[0].Name(), "config.yaml")
+				workingDir = filepath.Join(filePath, entries[0].Name())
+				path := filepath.Join(workingDir, "config.yaml")
 				fileHandler.Close()
 				fileHandler, err = os.Open(path)
 				if err != nil {
 					// config file not found
-					return nil, err
+					return nil, workingDir, err
 				}
 			} else {
-				return nil, err
+				return nil, workingDir, err
 			}
 		}
+	}
+
+	// if container conf exists, taker precedence
+	containerConf, err := os.Open(containerConfigPath)
+	if err == nil {
+		fileHandler = containerConf
 	}
 
 	disablePip, _ := common.GetenvBool("BRUCO_DISABLE_PIP")
 
 	if !disablePip {
-		if err := runPip(filepath.Dir(fileHandler.Name())); err != nil {
-			return nil, err
+		if err := runPip(workingDir); err != nil {
+			return nil, "", err
 		}
 	}
 
 	// If fileURL is not a directory I'm assuming that I'm running bruco
 	// against a config.yaml directly
-	return fileHandler, nil
+	return fileHandler, workingDir, nil
 }
 
 // Cleanup removes temporary files used during the loading process
