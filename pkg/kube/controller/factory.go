@@ -93,6 +93,7 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 							Name:    "bruco",
 							Image:   containerImage,
 							Command: []string{"bruco", bruco.Spec.FunctionURL},
+							Env:     bruco.Spec.Env,
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      configName,
