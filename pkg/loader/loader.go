@@ -105,7 +105,6 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 				fileHandler.Close()
 				fileHandler, err = os.Open(path)
 				if err != nil {
-					workingDir = filepath.Join(filePath, entries[0].Name())
 					foundInPackage = false
 				}
 			} else {
@@ -131,6 +130,7 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 			return nil, "", err
 		}
 	}
+	// log.Printf("cf: %s, wd: %s", fileHandler.Name(), workingDir)
 	// If fileURL is not a directory I'm assuming that I'm running bruco
 	// against a config.yaml directly
 	return fileHandler, workingDir, nil
