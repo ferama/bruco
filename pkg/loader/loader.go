@@ -91,7 +91,6 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 		path := filepath.Join(filePath, "config.yaml")
 		fileHandler.Close()
 		fileHandler, err = os.Open(path)
-
 		if err != nil {
 			// config.yaml not found. Try to get it from a subdir.
 			// |
@@ -102,11 +101,11 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 			//
 			entries, _ := ioutil.ReadDir(filePath)
 			if len(entries) > 0 {
-				workingDir = filepath.Join(filePath, entries[0].Name())
 				path := filepath.Join(workingDir, "config.yaml")
 				fileHandler.Close()
 				fileHandler, err = os.Open(path)
 				if err != nil {
+					workingDir = filepath.Join(filePath, entries[0].Name())
 					foundInPackage = false
 				}
 			} else {
