@@ -6,7 +6,7 @@ type SinkConf interface {
 }
 
 type SinkConfCommon struct {
-	Kind string `json:"kind"`
+	Kind string `json:"kind" yaml:"kind"`
 }
 
 func (s *SinkConfCommon) GetKind() string {
