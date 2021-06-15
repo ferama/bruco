@@ -3,6 +3,7 @@ package loader
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -87,10 +88,13 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 	workingDir = filepath.Dir(fileHandler.Name())
 	foundInPackage := true
 	if fi.IsDir() {
+		workingDir = fileHandler.Name()
+
 		// it's a directory. Search for a config.yaml inside
 		path := filepath.Join(filePath, "config.yaml")
 		fileHandler.Close()
 		fileHandler, err = os.Open(path)
+
 		if err != nil {
 			// config.yaml not found. Try to get it from a subdir.
 			// |
@@ -100,15 +104,14 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 			//		. handler.py
 			//
 			entries, _ := ioutil.ReadDir(filePath)
-			if len(entries) > 0 {
-				path := filepath.Join(workingDir, "config.yaml")
+			if len(entries) == 1 {
+				workingDir = filepath.Join(workingDir, entries[0].Name())
+				path := filepath.Join(entries[0].Name(), "config.yaml")
 				fileHandler.Close()
 				fileHandler, err = os.Open(path)
 				if err != nil {
 					foundInPackage = false
 				}
-			} else {
-				return nil, workingDir, err
 			}
 		}
 	}
@@ -130,7 +133,7 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 			return nil, "", err
 		}
 	}
-	// log.Printf("cf: %s, wd: %s", fileHandler.Name(), workingDir)
+	log.Printf("cf: %s, wd: %s", fileHandler.Name(), workingDir)
 	// If fileURL is not a directory I'm assuming that I'm running bruco
 	// against a config.yaml directly
 	return fileHandler, workingDir, nil

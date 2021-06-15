@@ -1,0 +1,42 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: brucos.bruco.ferama.github.io
+  # for more information on the below annotation, please see
+  # https://github.com/kubernetes/enhancements/blob/master/keps/sig-api-machinery/2337-k8s.io-group-protection/README.md
+  annotations:
+    "api-approved.kubernetes.io": "unapproved, experimental-only; please get an approval from Kubernetes API reviewers if you're trying to develop a CRD in the *.k8s.io or *.kubernetes.io groups"
+spec:
+  group: bruco.ferama.github.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        # schema used for validation
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                stream:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  
+            status:
+              type: object
+              properties:
+                availableReplicas:
+                  type: integer
+                currentGeneration:
+                  type: integer
+      # subresources for the custom resource
+      subresources:
+        # enables the status subresource
+        status: {}
+  names:
+    kind: Bruco
+    plural: brucos
+  scope: Namespaced

@@ -11,7 +11,7 @@ metadata:
   namespace: bruco
 rules:
 - apiGroups: [""]
-  resources: ["services", "pods", "events"]
+  resources: ["services", "pods", "events", "configmaps"]
   verbs: ["*"]
 - apiGroups: ["apps", "extensions"]
   resources: ["deployments"]
