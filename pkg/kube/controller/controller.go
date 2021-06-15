@@ -288,9 +288,6 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
-	// b, _ := yaml.Marshal(bruco.Spec.Conf)
-	// log.Printf("\n%s", string(b))
-
 	deploymentName := bruco.Name
 	if deploymentName == "" {
 		// We choose to absorb the error here as the worker would requeue the
@@ -335,7 +332,7 @@ func (c *Controller) syncHandler(key string) error {
 			Create(context.TODO(), newService(bruco), metav1.CreateOptions{})
 	}
 	if err != nil {
-		log.Println("###### ", err)
+		log.Println(err)
 		return err
 	}
 
@@ -356,7 +353,7 @@ func (c *Controller) syncHandler(key string) error {
 			Create(context.TODO(), newConfigMap(bruco), metav1.CreateOptions{})
 	}
 	if err != nil {
-		log.Println("###### ", err)
+		log.Println(err)
 		return err
 	}
 

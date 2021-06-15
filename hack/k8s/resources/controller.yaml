@@ -52,5 +52,6 @@ spec:
       containers:
         - name: bruco-controller
           image: ferama/bruco-controller:dev
+          imagePullPolicy: Always
       serviceAccountName: bruco
       restartPolicy: Always
