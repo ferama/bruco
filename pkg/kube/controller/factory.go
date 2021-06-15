@@ -11,6 +11,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+const (
+	ContainerDefaultImage = "ferama/bruco:dev"
+)
+
 // Creates a new config map with bruco config
 func newConfigMap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	b, _ := yaml.Marshal(bruco.Spec.Conf)
@@ -56,6 +60,34 @@ func newService(bruco *brucov1alpha1.Bruco) *corev1.Service {
 	}
 }
 
+func newFunctionContainer(bruco *brucov1alpha1.Bruco, configName string) *corev1.Container {
+	containerImage := ContainerDefaultImage
+
+	if bruco.Spec.Image != "" {
+		containerImage = bruco.Spec.Image
+	}
+	container := &corev1.Container{
+		Name:    "bruco",
+		Image:   containerImage,
+		Command: []string{"bruco", bruco.Spec.FunctionURL},
+		Env:     bruco.Spec.Env,
+		VolumeMounts: []corev1.VolumeMount{
+			{
+				Name:      configName,
+				MountPath: "/bruco",
+			},
+		},
+	}
+	if bruco.Spec.ImagePullPolicy == "" {
+		container.ImagePullPolicy = corev1.PullAlways
+	} else {
+		container.ImagePullPolicy = bruco.Spec.ImagePullPolicy
+	}
+
+	container.Resources = bruco.Spec.Resources
+	return container
+}
+
 // newDeployment creates a new Deployment for a Bruco resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Bruco resource that 'owns' it.
@@ -64,11 +96,12 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 		"app":        "bruco",
 		"controller": bruco.Name,
 	}
-	containerImage := "ferama/bruco:dev"
-	if bruco.Spec.ContainerImage != "" {
-		containerImage = bruco.Spec.ContainerImage
+	imagePullSecrets := []corev1.LocalObjectReference{}
+	if bruco.Spec.ImagePullSecrets != "" {
+		imagePullSecrets = []corev1.LocalObjectReference{
+			{Name: bruco.Spec.ImagePullSecrets},
+		}
 	}
-
 	configName := fmt.Sprintf("bruco-config-%d", bruco.Generation)
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -88,19 +121,9 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
+					ImagePullSecrets: imagePullSecrets,
 					Containers: []corev1.Container{
-						{
-							Name:    "bruco",
-							Image:   containerImage,
-							Command: []string{"bruco", bruco.Spec.FunctionURL},
-							Env:     bruco.Spec.Env,
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      configName,
-									MountPath: "/bruco",
-								},
-							},
-						},
+						*newFunctionContainer(bruco, configName),
 					},
 					Volumes: []corev1.Volume{
 						{

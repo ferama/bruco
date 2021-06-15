@@ -25,11 +25,17 @@ func (c *BrucoConf) DeepCopy() *BrucoConf {
 
 // BrucoSpec is the spec for a Bruco resource
 type BrucoSpec struct {
-	Replicas       *int32          `json:"replicas"`
-	ContainerImage string          `json:"containerImage,omitempty"`
-	FunctionURL    string          `json:"functionURL"`
-	Env            []corev1.EnvVar `json:"env"`
-	Conf           BrucoConf       `json:"stream"`
+	Replicas *int32 `json:"replicas"`
+	// you may want to use a custom image that has dependencies already installed
+	// for example
+	Image            string                      `json:"image,omitempty"`
+	FunctionURL      string                      `json:"functionURL"`
+	ImagePullPolicy  corev1.PullPolicy           `json:"imagePullPolicy,omitempty"`
+	ImagePullSecrets string                      `json:"imagePullSecrets,omitempty"`
+	Resources        corev1.ResourceRequirements `json:"resources,omitempty"`
+	Env              []corev1.EnvVar             `json:"env"`
+	// The bruco stream conf
+	Conf BrucoConf `json:"stream"`
 }
 
 // BrucoStatus is the status for a Bruco resource

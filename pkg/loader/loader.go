@@ -3,7 +3,6 @@ package loader
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -133,7 +132,6 @@ func (l *Loader) LoadFunction(fileURL string) (*os.File, string, error) {
 			return nil, "", err
 		}
 	}
-	log.Printf("fh: %s, wd: %s", fileHandler.Name(), workingDir)
 	// If fileURL is not a directory I'm assuming that I'm running bruco
 	// against a config.yaml directly
 	return fileHandler, workingDir, nil

@@ -19,23 +19,8 @@ spec:
           properties:
             spec:
               type: object
-              # x-kubernetes-preserve-unknown-fields: true
+              x-kubernetes-preserve-unknown-fields: true
               properties:
-                replicas:
-                  type: integer
-                containerImage:
-                  type: string
-                functionURL:
-                  type: string
-                env:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      value:
-                        type: string
                 stream:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true

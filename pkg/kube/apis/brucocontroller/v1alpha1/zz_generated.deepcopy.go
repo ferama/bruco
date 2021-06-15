@@ -88,6 +88,7 @@ func (in *BrucoSpec) DeepCopyInto(out *BrucoSpec) {
 		*out = new(int32)
 		**out = **in
 	}
+	in.Resources.DeepCopyInto(&out.Resources)
 	if in.Env != nil {
 		in, out := &in.Env, &out.Env
 		*out = make([]v1.EnvVar, len(*in))
