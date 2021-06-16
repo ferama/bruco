@@ -22,7 +22,7 @@ metadata:
   name: example-bruco
 spec:
   replicas: 1
-  functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
+  functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/sentiment.zip
   stream:
     processor:
       workers: 2
@@ -64,7 +64,7 @@ metadata:
   name: example-bruco
 spec:
   replicas: 1
-  functionURL: https://github.com/ferama/bruco/raw/main/hack/examples/zipped/sentiment.zip
+  functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/sentiment.zip
   stream:
     processor:
       workers: 2
