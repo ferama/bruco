@@ -13,6 +13,7 @@ import (
 
 const (
 	ContainerDefaultImage = "ferama/bruco:dev"
+	ConfigMountPath       = "/etc/bruco"
 )
 
 // Creates a new config map with bruco config
@@ -74,7 +75,7 @@ func newFunctionContainer(bruco *brucov1alpha1.Bruco, configName string) *corev1
 		VolumeMounts: []corev1.VolumeMount{
 			{
 				Name:      configName,
-				MountPath: "/bruco",
+				MountPath: ConfigMountPath,
 			},
 		},
 	}

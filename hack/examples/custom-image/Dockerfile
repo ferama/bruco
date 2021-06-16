@@ -17,4 +17,10 @@
 FROM ferama/bruco:dev
 
 WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+# we already installed dependencies into the custom image
+# disable running pip at runtime
+ENV BRUCO_DISABLE_PIP=true
+
 COPY . .

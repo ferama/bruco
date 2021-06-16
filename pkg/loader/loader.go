@@ -10,10 +10,11 @@ import (
 	"strings"
 
 	"github.com/ferama/bruco/pkg/common"
+	kubecontroller "github.com/ferama/bruco/pkg/kube/controller"
 	"github.com/ferama/bruco/pkg/loader/getter"
 )
 
-const containerConfigPath = "/bruco/config.yaml"
+const containerConfigPath = kubecontroller.ConfigMountPath + "/config.yaml"
 
 // Loader object will parse the handlerURL and prepare the function
 // to be executed from processor
