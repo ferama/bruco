@@ -9,7 +9,8 @@ spec:
       value: bruco
     - name: AWS_SECRET_ACCESS_KEY
       value: bruco123
-  functionURL: s3://bruco-minio.bruco:9000/brucos/sentiment.zip
+  # functionURL: s3://bruco-minio.bruco:9000/brucos/sentiment.zip
+  functionURL: s3://bruco-minio.bruco:9000/brucos/image-classifier.zip
   stream:
     processor:
       workers: 2
