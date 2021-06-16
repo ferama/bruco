@@ -63,9 +63,12 @@ class Wrapper:
                         "error": ""
                     }
                 else:
+                    excluded_list = [str]
+                    if type(response) not in excluded_list:
+                        response = json.dumps(response)
                     out = {
                         "key": "",
-                        "data": json.dumps(response),
+                        "data": response,
                         "contentType": "application/json",
                         "error": ""
                     }
