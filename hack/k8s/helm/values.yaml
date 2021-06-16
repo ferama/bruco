@@ -2,10 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-
-minio:
-  enabled: false
-
 replicaCount: 1
 
 image:
@@ -57,3 +53,14 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+minio:
+  enabled: true
+  accessKey:
+    password: bruco
+  secretKey:
+    password: bruco123
+
+  defaultBuckets: brucos
+

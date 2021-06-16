@@ -1,0 +1,17 @@
+apiVersion: bruco.ferama.github.io/v1alpha1
+kind: Bruco
+metadata:
+  name: example-bruco-s3
+spec:
+  replicas: 1
+  env:
+    - name: AWS_ACCESS_KEY_ID
+      value: bruco
+    - name: AWS_SECRET_ACCESS_KEY
+      value: bruco123
+  functionURL: s3://bruco-minio.bruco:9000/brucos/sentiment.zip
+  stream:
+    processor:
+      workers: 2
+    source:
+      kind: http
