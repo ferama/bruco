@@ -3,7 +3,7 @@ title: "Getting started on k8s"
 draft: false
 ---
 
-This guide will introduce you to the **bruco** concept e will help to get the stuff up and running quickly.
+This guide will introduce you to the **bruco** concept and will help to get the stuff up and running quickly.
 
 This tutorial make some assumptions:
 
@@ -108,3 +108,7 @@ $ kubectl -n bruco port-forward svc/example-bruco 8080
 $ curl -X POST -d "bruco is great" http://localhost:8080
 {"sentiment": 0.8, "subjectivity": 0.75}
 ```
+
+{{% notice note %}}
+For more details about bruco on k8s [go here]({{< ref "kubernetes/kubernetes" >}}).
+{{% /notice %}}
