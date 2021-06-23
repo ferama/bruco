@@ -18,9 +18,9 @@ const (
 
 func newBrucoFromProject(brucoproject *brucov1alpha1.BrucoProject,
 	brucoSpec brucov1alpha1.BrucoSpec, resName string) *brucov1alpha1.Bruco {
+
 	return &brucov1alpha1.Bruco{
 		ObjectMeta: metav1.ObjectMeta{
-			// Name:      brucoproject.Name,
 			Name:      resName,
 			Namespace: brucoproject.Namespace,
 			OwnerReferences: []metav1.OwnerReference{

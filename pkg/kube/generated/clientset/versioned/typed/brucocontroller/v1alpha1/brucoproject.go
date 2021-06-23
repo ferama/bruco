@@ -24,6 +24,7 @@ type BrucoProjectsGetter interface {
 type BrucoProjectInterface interface {
 	Create(ctx context.Context, brucoProject *v1alpha1.BrucoProject, opts v1.CreateOptions) (*v1alpha1.BrucoProject, error)
 	Update(ctx context.Context, brucoProject *v1alpha1.BrucoProject, opts v1.UpdateOptions) (*v1alpha1.BrucoProject, error)
+	UpdateStatus(ctx context.Context, brucoProject *v1alpha1.BrucoProject, opts v1.UpdateOptions) (*v1alpha1.BrucoProject, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
 	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.BrucoProject, error)
@@ -112,6 +113,22 @@ func (c *brucoProjects) Update(ctx context.Context, brucoProject *v1alpha1.Bruco
 		Namespace(c.ns).
 		Resource("brucoprojects").
 		Name(brucoProject.Name).
+		VersionedParams(&opts, scheme.ParameterCodec).
+		Body(brucoProject).
+		Do(ctx).
+		Into(result)
+	return
+}
+
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+func (c *brucoProjects) UpdateStatus(ctx context.Context, brucoProject *v1alpha1.BrucoProject, opts v1.UpdateOptions) (result *v1alpha1.BrucoProject, err error) {
+	result = &v1alpha1.BrucoProject{}
+	err = c.client.Put().
+		Namespace(c.ns).
+		Resource("brucoprojects").
+		Name(brucoProject.Name).
+		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(brucoProject).
 		Do(ctx).

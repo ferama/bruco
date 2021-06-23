@@ -9,6 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
@@ -223,10 +224,46 @@ func (c *BrucoProjectController) syncHandler(key string) error {
 		return err
 	}
 
+	// if the resource was updater, delete all the running brucos that belongs
+	// to the project first
+	if brucoProject.Generation != brucoProject.Status.CurrentGeneration {
+		brucos, err := c.brucoLister.Brucos(brucoProject.Namespace).List(
+			labels.Everything(),
+		)
+		if err != nil {
+			return err
+		}
+
+		for _, bruco := range brucos {
+			// skip brucos that doesn't belong to the project
+			if !metav1.IsControlledBy(bruco, brucoProject) {
+				continue
+			}
+			c.brucoclientset.
+				BrucoV1alpha1().
+				Brucos(brucoProject.Namespace).
+				Delete(context.TODO(), bruco.Name, metav1.DeleteOptions{})
+		}
+	}
+
+	err = c.createBrucos(brucoProject)
+	if err != nil {
+		return err
+	}
+
+	err = c.updateBrucoProjectStatus(brucoProject)
+	if err != nil {
+		return err
+	}
+
+	c.recorder.Event(brucoProject, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
+	return nil
+}
+
+func (c *BrucoProjectController) createBrucos(brucoProject *brucov1alpha1.BrucoProject) error {
 	// Create required but not existsing brucos
 	for i, brucoConf := range brucoProject.Spec.Brucos {
 		brucoName := fmt.Sprintf("%s-%d", brucoProject.Name, i)
-		// brucoName := brucoProject.Name
 		bruco, err := c.brucoLister.Brucos(brucoProject.Namespace).Get(brucoName)
 		if errors.IsNotFound(err) {
 			bruco, err = c.brucoclientset.
@@ -247,8 +284,22 @@ func (c *BrucoProjectController) syncHandler(key string) error {
 		}
 	}
 
-	c.recorder.Event(brucoProject, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
+}
+
+func (c *BrucoProjectController) updateBrucoProjectStatus(brucoProject *brucov1alpha1.BrucoProject) error {
+	brucoProjectCopy := brucoProject.DeepCopy()
+	brucoProjectCopy.Status.CurrentGeneration = brucoProject.Generation
+
+	// If the CustomResourceSubresources feature gate is not enabled,
+	// we must use Update instead of UpdateStatus to update the Status block of the Bruco resource.
+	// UpdateStatus will not allow changes to the Spec of the resource,
+	// which is ideal for ensuring nothing other than resource status has been updated.
+	_, err := c.brucoclientset.
+		BrucoV1alpha1().
+		BrucoProjects(brucoProject.Namespace).
+		UpdateStatus(context.TODO(), brucoProjectCopy, metav1.UpdateOptions{})
+	return err
 }
 
 // enqueueBrucoProject takes a Bruco resource and converts it into a namespace/name

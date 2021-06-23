@@ -55,7 +55,6 @@ type BrucoList struct {
 }
 
 // +genclient
-// +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // BrucoProject describes a project.
@@ -63,7 +62,12 @@ type BrucoProject struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec BrucoProjectSpec `json:"spec"`
+	Spec   BrucoProjectSpec   `json:"spec"`
+	Status BrucoProjectStatus `json:"status"`
+}
+
+type BrucoProjectStatus struct {
+	CurrentGeneration int64 `json:"currentGeneration"`
 }
 
 // BrucoProjectSpec is the spec for a Bruco project resource

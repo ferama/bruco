@@ -63,6 +63,17 @@ spec:
             spec:
               type: object
               x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              properties:
+                currentGeneration:
+                  type: integer
+            selector:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+      subresources:
+        # enables the status subresource
+        status: {}
   names:
     kind: BrucoProject
     plural: brucoprojects
