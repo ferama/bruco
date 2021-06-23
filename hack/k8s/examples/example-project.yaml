@@ -3,14 +3,18 @@ kind: BrucoProject
 metadata:
   name: example-bruco-project
 spec:
-  name: "example project"
   brucos:
     - replicas: 1
       functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/sentiment.zip
-      # functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/basic.zip
       stream:
         processor:
           workers: 2
         source:
           kind: http
-          ignoreProcessorResponse: false
+    - replicas: 1
+      functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/basic.zip
+      stream:
+        processor:
+          workers: 1
+        source:
+          kind: http

@@ -145,7 +145,7 @@ func (in *BrucoProjectSpec) DeepCopyInto(out *BrucoProjectSpec) {
 	*out = *in
 	if in.Brucos != nil {
 		in, out := &in.Brucos, &out.Brucos
-		*out = make([]Bruco, len(*in))
+		*out = make([]BrucoSpec, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}

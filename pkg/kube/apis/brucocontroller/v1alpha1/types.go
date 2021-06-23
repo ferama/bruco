@@ -68,8 +68,7 @@ type BrucoProject struct {
 
 // BrucoProjectSpec is the spec for a Bruco project resource
 type BrucoProjectSpec struct {
-	Name   string  `json:"name"`
-	Brucos []Bruco `json:"brucos"`
+	Brucos []BrucoSpec `json:"brucos"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

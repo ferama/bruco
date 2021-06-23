@@ -16,6 +16,21 @@ const (
 	ConfigMountPath       = "/etc/bruco"
 )
 
+func newBrucoFromProject(brucoproject *brucov1alpha1.BrucoProject,
+	brucoSpec brucov1alpha1.BrucoSpec, resName string) *brucov1alpha1.Bruco {
+	return &brucov1alpha1.Bruco{
+		ObjectMeta: metav1.ObjectMeta{
+			// Name:      brucoproject.Name,
+			Name:      resName,
+			Namespace: brucoproject.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(brucoproject, brucov1alpha1.SchemeGroupVersion.WithKind("BrucoProject")),
+			},
+		},
+		Spec: brucoSpec,
+	}
+}
+
 // Creates a new config map with bruco config
 func newConfigMap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	b, _ := yaml.Marshal(bruco.Spec.Conf)
