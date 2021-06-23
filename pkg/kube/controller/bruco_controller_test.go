@@ -67,14 +67,14 @@ func newBruco(name string, replicas *int32) *brucocontroller.Bruco {
 	}
 }
 
-func (f *fixture) newController() (*Controller, informers.SharedInformerFactory, kubeinformers.SharedInformerFactory) {
+func (f *fixture) newController() (*BrucoController, informers.SharedInformerFactory, kubeinformers.SharedInformerFactory) {
 	f.client = fake.NewSimpleClientset(f.objects...)
 	f.kubeclient = k8sfake.NewSimpleClientset(f.kubeobjects...)
 
 	i := informers.NewSharedInformerFactory(f.client, noResyncPeriodFunc())
 	k8sI := kubeinformers.NewSharedInformerFactory(f.kubeclient, noResyncPeriodFunc())
 
-	c := NewController(f.kubeclient, f.client,
+	c := NewBrucoController(f.kubeclient, f.client,
 		k8sI.Apps().V1().Deployments(),
 		k8sI.Core().V1().Services(),
 		k8sI.Core().V1().ConfigMaps(),

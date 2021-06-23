@@ -48,7 +48,7 @@ func main() {
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	brucoInformerFactory := informers.NewSharedInformerFactory(brucoClient, time.Second*30)
 
-	controller := brucocontroller.NewController(kubeClient, brucoClient,
+	controller := brucocontroller.NewBrucoController(kubeClient, brucoClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
 		kubeInformerFactory.Core().V1().Services(),
 		kubeInformerFactory.Core().V1().ConfigMaps(),

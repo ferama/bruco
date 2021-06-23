@@ -48,8 +48,8 @@ const (
 	MessageResourceSynced = "Bruco synced successfully"
 )
 
-// Controller is the controller implementation for Bruco resources
-type Controller struct {
+// BrucoController is the controller implementation for Bruco resources
+type BrucoController struct {
 	// kubeclientset is a standard kubernetes clientset
 	kubeclientset kubernetes.Interface
 	// brucoclientset is a clientset for our own API group
@@ -75,14 +75,14 @@ type Controller struct {
 	recorder record.EventRecorder
 }
 
-// NewController returns a new sample controller
-func NewController(
+// NewBrucoController returns a new sample controller
+func NewBrucoController(
 	kubeclientset kubernetes.Interface,
 	brucoclientset clientset.Interface,
 	deploymentInformer appsinformers.DeploymentInformer,
 	serviceInformer coreinformers.ServiceInformer,
 	configMapInformer coreinformers.ConfigMapInformer,
-	brucoInformer informers.BrucoInformer) *Controller {
+	brucoInformer informers.BrucoInformer) *BrucoController {
 
 	// Create event broadcaster
 	// Add sample-controller types to the default Kubernetes Scheme so Events can be
@@ -94,7 +94,7 @@ func NewController(
 	eventBroadcaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{Interface: kubeclientset.CoreV1().Events("")})
 	recorder := eventBroadcaster.NewRecorder(scheme.Scheme, corev1.EventSource{Component: controllerAgentName})
 
-	controller := &Controller{
+	controller := &BrucoController{
 		kubeclientset:     kubeclientset,
 		brucoclientset:    brucoclientset,
 		deploymentsLister: deploymentInformer.Lister(),
@@ -175,7 +175,7 @@ func NewController(
 // as syncing informer caches and starting workers. It will block until stopCh
 // is closed, at which point it will shutdown the workqueue and wait for
 // workers to finish processing their current work items.
-func (c *Controller) Run(threadiness int, stopCh <-chan struct{}) error {
+func (c *BrucoController) Run(threadiness int, stopCh <-chan struct{}) error {
 	defer utilruntime.HandleCrash()
 	defer c.workqueue.ShutDown()
 
@@ -204,14 +204,14 @@ func (c *Controller) Run(threadiness int, stopCh <-chan struct{}) error {
 // runWorker is a long-running function that will continually call the
 // processNextWorkItem function in order to read and process a message on the
 // workqueue.
-func (c *Controller) runWorker() {
+func (c *BrucoController) runWorker() {
 	for c.processNextWorkItem() {
 	}
 }
 
 // processNextWorkItem will read a single work item off the workqueue and
 // attempt to process it, by calling the syncHandler.
-func (c *Controller) processNextWorkItem() bool {
+func (c *BrucoController) processNextWorkItem() bool {
 	obj, shutdown := c.workqueue.Get()
 
 	if shutdown {
@@ -267,7 +267,7 @@ func (c *Controller) processNextWorkItem() bool {
 // syncHandler compares the actual state with the desired, and attempts to
 // converge the two. It then updates the Status block of the Bruco resource
 // with the current status of the resource.
-func (c *Controller) syncHandler(key string) error {
+func (c *BrucoController) syncHandler(key string) error {
 	// Convert the namespace/name string into a distinct namespace and name
 	namespace, name, err := cache.SplitMetaNamespaceKey(key)
 	if err != nil {
@@ -411,7 +411,7 @@ func (c *Controller) syncHandler(key string) error {
 	return nil
 }
 
-func (c *Controller) updateBrucoStatus(bruco *brucov1alpha1.Bruco, deployment *appsv1.Deployment) error {
+func (c *BrucoController) updateBrucoStatus(bruco *brucov1alpha1.Bruco, deployment *appsv1.Deployment) error {
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
@@ -432,7 +432,7 @@ func (c *Controller) updateBrucoStatus(bruco *brucov1alpha1.Bruco, deployment *a
 // enqueueBruco takes a Bruco resource and converts it into a namespace/name
 // string which is then put onto the work queue. This method should *not* be
 // passed resources of any type other than Bruco.
-func (c *Controller) enqueueBruco(obj interface{}) {
+func (c *BrucoController) enqueueBruco(obj interface{}) {
 	var key string
 	var err error
 	if key, err = cache.MetaNamespaceKeyFunc(obj); err != nil {
@@ -447,7 +447,7 @@ func (c *Controller) enqueueBruco(obj interface{}) {
 // objects metadata.ownerReferences field for an appropriate OwnerReference.
 // It then enqueues that Bruco resource to be processed. If the object does not
 // have an appropriate OwnerReference, it will simply be skipped.
-func (c *Controller) handleObject(obj interface{}) {
+func (c *BrucoController) handleObject(obj interface{}) {
 	var object metav1.Object
 	var ok bool
 	if object, ok = obj.(metav1.Object); !ok {
