@@ -16,6 +16,10 @@ func (c *FakeBrucoV1alpha1) Brucos(namespace string) v1alpha1.BrucoInterface {
 	return &FakeBrucos{c, namespace}
 }
 
+func (c *FakeBrucoV1alpha1) BrucoProjects(namespace string) v1alpha1.BrucoProjectInterface {
+	return &FakeBrucoProjects{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeBrucoV1alpha1) RESTClient() rest.Interface {

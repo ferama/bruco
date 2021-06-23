@@ -39,6 +39,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=bruco.ferama.github.io, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("brucos"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Bruco().V1alpha1().Brucos().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("brucoprojects"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Bruco().V1alpha1().BrucoProjects().Informer()}, nil
 
 	}
 

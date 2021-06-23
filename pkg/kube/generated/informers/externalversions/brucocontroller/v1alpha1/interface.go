@@ -10,6 +10,8 @@ import (
 type Interface interface {
 	// Brucos returns a BrucoInformer.
 	Brucos() BrucoInformer
+	// BrucoProjects returns a BrucoProjectInformer.
+	BrucoProjects() BrucoProjectInformer
 }
 
 type version struct {
@@ -26,4 +28,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // Brucos returns a BrucoInformer.
 func (v *version) Brucos() BrucoInformer {
 	return &brucoInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// BrucoProjects returns a BrucoProjectInformer.
+func (v *version) BrucoProjects() BrucoProjectInformer {
+	return &brucoProjectInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

@@ -53,3 +53,31 @@ type BrucoList struct {
 
 	Items []Bruco `json:"items"`
 }
+
+// +genclient
+// +genclient:noStatus
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// BrucoProject describes a project.
+type BrucoProject struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec BrucoProjectSpec `json:"spec"`
+}
+
+// BrucoProjectSpec is the spec for a Bruco project resource
+type BrucoProjectSpec struct {
+	Name   string  `json:"name"`
+	Brucos []Bruco `json:"brucos"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// BrucoProjectList is a list of project resources
+type BrucoProjectList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []BrucoProject `json:"items"`
+}
