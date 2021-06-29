@@ -271,7 +271,7 @@ func (c *BrucoController) syncHandler(key string) error {
 		return err
 	}
 
-	deploymentName := bruco.Name
+	deploymentName := getDeploymentName(bruco)
 	if deploymentName == "" {
 		// We choose to absorb the error here as the worker would requeue the
 		// resource otherwise. Instead, the next time the resource is updated
@@ -304,7 +304,7 @@ func (c *BrucoController) syncHandler(key string) error {
 		return fmt.Errorf(msg)
 	}
 
-	serviceName := bruco.Name
+	serviceName := getServiceName(bruco)
 	// Get the service with the name specified in Bruco.spec
 	service, err := c.servicesLister.Services(bruco.Namespace).Get(serviceName)
 	// If the resource doesn't exist, we'll create it
@@ -325,7 +325,7 @@ func (c *BrucoController) syncHandler(key string) error {
 		return fmt.Errorf(msg)
 	}
 
-	configMapName := bruco.Name
+	configMapName := getConfigMapName(bruco)
 	// Get the service with the name specified in Bruco.spec
 	configMap, err := c.configMapLister.ConfigMaps(bruco.Namespace).Get(configMapName)
 	// If the resource doesn't exist, we'll create it

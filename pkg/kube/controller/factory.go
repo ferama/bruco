@@ -39,7 +39,7 @@ func newConfigMap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	confMap["config.yaml"] = string(b)
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
+			Name:      getConfigMapName(bruco),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -56,7 +56,7 @@ func newService(bruco *brucov1alpha1.Bruco) *corev1.Service {
 	}
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("bruco-%s", bruco.Name),
+			Name:      getServiceName(bruco),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -119,13 +119,10 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 		}
 	}
 	configName := fmt.Sprintf("bruco-config-%d", bruco.Generation)
-	depName := bruco.Name
-	if bruco.Spec.Name != "" {
-		depName = bruco.Spec.Name
-	}
+
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("bruco-%s", depName),
+			Name:      getDeploymentName(bruco),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -151,7 +148,7 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 							VolumeSource: corev1.VolumeSource{
 								ConfigMap: &corev1.ConfigMapVolumeSource{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: bruco.Name,
+										Name: getConfigMapName(bruco),
 									},
 								},
 							},
