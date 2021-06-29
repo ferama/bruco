@@ -9,3 +9,11 @@ type BrucoListerExpansion interface{}
 // BrucoNamespaceListerExpansion allows custom methods to be added to
 // BrucoNamespaceLister.
 type BrucoNamespaceListerExpansion interface{}
+
+// BrucoProjectListerExpansion allows custom methods to be added to
+// BrucoProjectLister.
+type BrucoProjectListerExpansion interface{}
+
+// BrucoProjectNamespaceListerExpansion allows custom methods to be added to
+// BrucoProjectNamespaceLister.
+type BrucoProjectNamespaceListerExpansion interface{}

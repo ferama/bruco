@@ -31,23 +31,6 @@ import (
 	listers "github.com/ferama/bruco/pkg/kube/generated/listers/brucocontroller/v1alpha1"
 )
 
-const controllerAgentName = "bruco-controller"
-
-const (
-	// SuccessSynced is used as part of the Event 'reason' when a Bruco is synced
-	SuccessSynced = "Synced"
-	// ErrResourceExists is used as part of the Event 'reason' when a Bruco fails
-	// to sync due to a Deployment of the same name already existing.
-	ErrResourceExists = "ErrResourceExists"
-
-	// MessageResourceExists is the message used for Events when a resource
-	// fails to sync due to a Deployment already existing
-	MessageResourceExists = "Resource %q already exists and is not managed by Bruco"
-	// MessageResourceSynced is the message used for an Event fired when a Bruco
-	// is synced successfully
-	MessageResourceSynced = "Bruco synced successfully"
-)
-
 // BrucoController is the controller implementation for Bruco resources
 type BrucoController struct {
 	// kubeclientset is a standard kubernetes clientset
@@ -288,7 +271,7 @@ func (c *BrucoController) syncHandler(key string) error {
 		return err
 	}
 
-	deploymentName := bruco.Name
+	deploymentName := getDeploymentName(bruco)
 	if deploymentName == "" {
 		// We choose to absorb the error here as the worker would requeue the
 		// resource otherwise. Instead, the next time the resource is updated
@@ -321,7 +304,7 @@ func (c *BrucoController) syncHandler(key string) error {
 		return fmt.Errorf(msg)
 	}
 
-	serviceName := bruco.Name
+	serviceName := getServiceName(bruco)
 	// Get the service with the name specified in Bruco.spec
 	service, err := c.servicesLister.Services(bruco.Namespace).Get(serviceName)
 	// If the resource doesn't exist, we'll create it
@@ -342,7 +325,7 @@ func (c *BrucoController) syncHandler(key string) error {
 		return fmt.Errorf(msg)
 	}
 
-	configMapName := bruco.Name
+	configMapName := getConfigMapName(bruco)
 	// Get the service with the name specified in Bruco.spec
 	configMap, err := c.configMapLister.ConfigMaps(bruco.Namespace).Get(configMapName)
 	// If the resource doesn't exist, we'll create it

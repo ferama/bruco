@@ -16,6 +16,21 @@ const (
 	ConfigMountPath       = "/etc/bruco"
 )
 
+func newBrucoFromProject(brucoproject *brucov1alpha1.BrucoProject,
+	brucoSpec brucov1alpha1.BrucoSpec, resName string) *brucov1alpha1.Bruco {
+
+	return &brucov1alpha1.Bruco{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      resName,
+			Namespace: brucoproject.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(brucoproject, brucov1alpha1.SchemeGroupVersion.WithKind("BrucoProject")),
+			},
+		},
+		Spec: brucoSpec,
+	}
+}
+
 // Creates a new config map with bruco config
 func newConfigMap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	b, _ := yaml.Marshal(bruco.Spec.Conf)
@@ -24,7 +39,7 @@ func newConfigMap(bruco *brucov1alpha1.Bruco) *corev1.ConfigMap {
 	confMap["config.yaml"] = string(b)
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
+			Name:      getConfigMapName(bruco),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -41,7 +56,7 @@ func newService(bruco *brucov1alpha1.Bruco) *corev1.Service {
 	}
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
+			Name:      getServiceName(bruco),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -104,9 +119,10 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 		}
 	}
 	configName := fmt.Sprintf("bruco-config-%d", bruco.Generation)
+
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
+			Name:      getDeploymentName(bruco),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -132,7 +148,7 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 							VolumeSource: corev1.VolumeSource{
 								ConfigMap: &corev1.ConfigMapVolumeSource{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: bruco.Name,
+										Name: getConfigMapName(bruco),
 									},
 								},
 							},

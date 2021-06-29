@@ -47,6 +47,7 @@ func main() {
 
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	brucoInformerFactory := informers.NewSharedInformerFactory(brucoClient, time.Second*30)
+	brucoProjectInformerFactory := informers.NewSharedInformerFactory(brucoClient, time.Second*30)
 
 	controller := brucocontroller.NewBrucoController(kubeClient, brucoClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
@@ -54,10 +55,23 @@ func main() {
 		kubeInformerFactory.Core().V1().ConfigMaps(),
 		brucoInformerFactory.Bruco().V1alpha1().Brucos())
 
+	projectController := brucocontroller.NewBrucoProjectController(
+		kubeClient,
+		brucoClient,
+		brucoInformerFactory.Bruco().V1alpha1().Brucos(),
+		brucoProjectInformerFactory.Bruco().V1alpha1().BrucoProjects(),
+	)
 	// notice that there is no need to run Start methods in a separate goroutine. (i.e. go kubeInformerFactory.Start(stopCh)
 	// Start method is non-blocking and runs all registered informers in a dedicated goroutine.
 	kubeInformerFactory.Start(stopCh)
 	brucoInformerFactory.Start(stopCh)
+	brucoProjectInformerFactory.Start(stopCh)
+
+	go func() {
+		if err = projectController.Run(2, stopCh); err != nil {
+			klog.Fatalf("Error running project controller: %s", err.Error())
+		}
+	}()
 
 	if err = controller.Run(2, stopCh); err != nil {
 		klog.Fatalf("Error running controller: %s", err.Error())

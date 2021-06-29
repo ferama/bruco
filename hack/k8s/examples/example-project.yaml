@@ -1,0 +1,22 @@
+apiVersion: bruco.ferama.github.io/v1alpha1
+kind: BrucoProject
+metadata:
+  name: example-bruco-project
+spec:
+  brucos:
+    - name: sentiment
+      replicas: 1
+      functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/sentiment.zip
+      stream:
+        processor:
+          workers: 2
+        source:
+          kind: http
+    - name: basic
+      replicas: 1
+      functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/basic.zip
+      stream:
+        processor:
+          workers: 1
+        source:
+          kind: http

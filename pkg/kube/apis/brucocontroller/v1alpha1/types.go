@@ -25,6 +25,7 @@ func (c *BrucoConf) DeepCopy() *BrucoConf {
 
 // BrucoSpec is the spec for a Bruco resource
 type BrucoSpec struct {
+	Name     string `json:"name"`
 	Replicas *int32 `json:"replicas"`
 	// you may want to use a custom image that has dependencies already installed
 	// for example
@@ -52,4 +53,35 @@ type BrucoList struct {
 	metav1.ListMeta `json:"metadata"`
 
 	Items []Bruco `json:"items"`
+}
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// BrucoProject describes a project.
+type BrucoProject struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   BrucoProjectSpec   `json:"spec"`
+	Status BrucoProjectStatus `json:"status"`
+}
+
+type BrucoProjectStatus struct {
+	CurrentGeneration int64 `json:"currentGeneration"`
+}
+
+// BrucoProjectSpec is the spec for a Bruco project resource
+type BrucoProjectSpec struct {
+	Brucos []BrucoSpec `json:"brucos"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// BrucoProjectList is a list of project resources
+type BrucoProjectList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []BrucoProject `json:"items"`
 }

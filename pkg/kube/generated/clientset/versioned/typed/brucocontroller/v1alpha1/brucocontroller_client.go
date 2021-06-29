@@ -11,6 +11,7 @@ import (
 type BrucoV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	BrucosGetter
+	BrucoProjectsGetter
 }
 
 // BrucoV1alpha1Client is used to interact with features provided by the bruco.ferama.github.io group.
@@ -20,6 +21,10 @@ type BrucoV1alpha1Client struct {
 
 func (c *BrucoV1alpha1Client) Brucos(namespace string) BrucoInterface {
 	return newBrucos(c, namespace)
+}
+
+func (c *BrucoV1alpha1Client) BrucoProjects(namespace string) BrucoProjectInterface {
+	return newBrucoProjects(c, namespace)
 }
 
 // NewForConfig creates a new BrucoV1alpha1Client for the given config.
