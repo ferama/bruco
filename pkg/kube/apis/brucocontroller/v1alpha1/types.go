@@ -25,6 +25,7 @@ func (c *BrucoConf) DeepCopy() *BrucoConf {
 
 // BrucoSpec is the spec for a Bruco resource
 type BrucoSpec struct {
+	Name     string `json:"name"`
 	Replicas *int32 `json:"replicas"`
 	// you may want to use a custom image that has dependencies already installed
 	// for example

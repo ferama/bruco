@@ -264,6 +264,9 @@ func (c *BrucoProjectController) createBrucos(brucoProject *brucov1alpha1.BrucoP
 	// Create required but not existsing brucos
 	for i, brucoConf := range brucoProject.Spec.Brucos {
 		brucoName := fmt.Sprintf("%s-%d", brucoProject.Name, i)
+		if brucoConf.Name != "" {
+			brucoName = brucoConf.Name
+		}
 		bruco, err := c.brucoLister.Brucos(brucoProject.Namespace).Get(brucoName)
 		if errors.IsNotFound(err) {
 			bruco, err = c.brucoclientset.

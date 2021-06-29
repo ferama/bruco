@@ -4,14 +4,16 @@ metadata:
   name: example-bruco-project
 spec:
   brucos:
-    - replicas: 1
+    - name: sentiment
+      replicas: 1
       functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/sentiment.zip
       stream:
         processor:
           workers: 2
         source:
           kind: http
-    - replicas: 1
+    - name: basic
+      replicas: 1
       functionURL: https://github.com/ferama/bruco/raw/main/examples/zipped/basic.zip
       stream:
         processor:

@@ -56,7 +56,7 @@ func newService(bruco *brucov1alpha1.Bruco) *corev1.Service {
 	}
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
+			Name:      fmt.Sprintf("bruco-%s", bruco.Name),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
@@ -119,9 +119,13 @@ func newDeployment(bruco *brucov1alpha1.Bruco) *appsv1.Deployment {
 		}
 	}
 	configName := fmt.Sprintf("bruco-config-%d", bruco.Generation)
+	depName := bruco.Name
+	if bruco.Spec.Name != "" {
+		depName = bruco.Spec.Name
+	}
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      bruco.Name,
+			Name:      fmt.Sprintf("bruco-%s", depName),
 			Namespace: bruco.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(bruco, brucov1alpha1.SchemeGroupVersion.WithKind("Bruco")),
