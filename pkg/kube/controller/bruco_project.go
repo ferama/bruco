@@ -26,7 +26,7 @@ import (
 	listers "github.com/ferama/bruco/pkg/kube/generated/listers/brucocontroller/v1alpha1"
 )
 
-// BrucoController is the controller implementation for Bruco resources
+// BrucoProjectController is the controller implementation for BrucoProject resources
 type BrucoProjectController struct {
 	// kubeclientset is a standard kubernetes clientset
 	kubeclientset kubernetes.Interface

@@ -42,6 +42,26 @@ class Wrapper:
     def sigint_handler(self, p1, p2):
         sys.exit(0)
 
+
+    def get_msg_len(self, sock) -> int:
+        b = sock.recv(4)
+        l = int(b[3])
+        l += b[2] << 8
+        l += b[1] << 16
+        l += b[0] << 24
+        return l
+
+    def get_msg(self, sock, msg_len):
+        total_bytes = 0
+        msg = []
+        while total_bytes < msg_len:
+            bytes_to_read = msg_len - total_bytes
+            b = sock.recv(bytes_to_read)
+            total_bytes += len(b)
+            msg.extend(b)
+        
+        return bytearray(msg)
+
     def start(self):
         context = Context(self.worker_name)
         module = importlib.import_module(self.module_name)
@@ -51,7 +71,11 @@ class Wrapper:
         client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         client.connect(self.socketPath)
         while True:
-            msg = client.recv(1024 * 1024 * 100)
+            # the processor sends the msg len into the first 4 bytes
+            msg_len = self.get_msg_len(client)
+            msg = self.get_msg(client, msg_len)
+            if msg_len != len(msg):
+                raise Exception("Error while reading msg")
             try:
                 response = module.handle_event(context, msg)
                 if not response: response = ""

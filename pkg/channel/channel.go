@@ -2,6 +2,7 @@ package channel
 
 import (
 	"bufio"
+	"encoding/binary"
 	"io/ioutil"
 	"log"
 	"net"
@@ -66,6 +67,15 @@ func (c *Channel) Write(data []byte) error {
 	// prevents concurrent writes (short write error)
 	c.wmu.Lock()
 	defer c.wmu.Unlock()
+
+	// send the msg len as the first 4 bytes
+	bs := make([]byte, 4)
+	binary.BigEndian.PutUint32(bs, uint32(len(data)))
+	_, err := c.writer.Write(bs)
+	if err != nil {
+		log.Printf("channel write error: %s", err)
+		return err
+	}
 
 	l, err := c.writer.Write(data)
 	if err != nil {
