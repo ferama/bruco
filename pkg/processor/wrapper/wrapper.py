@@ -71,12 +71,14 @@ class Wrapper:
         client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         client.connect(self.socketPath)
         while True:
-            # the processor sends the msg len into the first 4 bytes
-            msg_len = self.get_msg_len(client)
-            msg = self.get_msg(client, msg_len)
-            if msg_len != len(msg):
-                raise Exception("Error while reading msg")
             try:
+                # the processor sends the msg len into the first 4 bytes
+                msg_len = self.get_msg_len(client)
+                msg = self.get_msg(client, msg_len)
+
+                if msg_len != len(msg):
+                    raise Exception("Error while reading msg")
+
                 response = module.handle_event(context, msg)
                 if not response: response = ""
                 if type(response) == Response:
